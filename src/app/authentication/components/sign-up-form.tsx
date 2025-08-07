@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,25 +24,30 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
-const formSchema = z.object({
-  name: z.string("Nome inválido!").trim().min(1, "Nome é obrigatório!"),
-  email: z.email("E-mail inválido!"),
-  password: z.string().min(8, "Senha inválida!"),
-  confirmPassword: z.string().min(8, "Confirmação de senha inválida!"),
-}).refine((data) => {
-  return data.password == data.confirmPassword;
-}, 
-  {
-    error: "As senhas não coincidem.",
-    path: ["confirmPassword"],
-  }
-);
+const formSchema = z
+  .object({
+    name: z.string("Nome inválido!").trim().min(1, "Nome é obrigatório!"),
+    email: z.email("E-mail inválido!"),
+    password: z.string().min(8, "Senha inválida!"),
+    confirmPassword: z.string().min(8, "Confirmação de senha inválida!"),
+  })
+  .refine(
+    (data) => {
+      return data.password === data.confirmPassword;
+    },
+    {
+      error: "As senhas não coincidem.",
+      path: ["confirmPassword"],
+    },
+  );
 
-type FormSchema = z.infer<typeof formSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 const SignUpForm = () => {
-  const form = useForm<FormSchema>({
+  const router = useRouter();
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -50,10 +57,28 @@ const SignUpForm = () => {
     },
   });
 
-  function onSubmit(values: FormSchema) {
-    console.log("FORMULARIO VALIDO E ENVIADO!");
-    console.log(values);
+  async function onSubmit(values: FormValues) {
+    await authClient.signUp.email({
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      fetchOptions: {
+        onSuccess: () => {
+          router.push("/");
+        },
+        onError: (error) => {
+          if (error.error.code === "USER_ALREADY_EXISTS") {
+            toast.error("E-mail já cadastrado!");
+            form.setError("email", {
+              message: "E-mail já cadastrado!",
+            });
+          }
+          toast.error(error.error.message);
+        },
+      },
+    });
   }
+
   return (
     <>
       <Card>
@@ -61,7 +86,6 @@ const SignUpForm = () => {
           <CardTitle>Criar conta</CardTitle>
           <CardDescription>Crie uma conta para continuar.</CardDescription>
         </CardHeader>
-
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -92,7 +116,7 @@ const SignUpForm = () => {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
