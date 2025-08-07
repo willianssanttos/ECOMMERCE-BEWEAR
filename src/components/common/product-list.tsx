@@ -10,7 +10,7 @@ interface ProductListProps {
     variants: (typeof productVariantTable.$inferSelect)[];
   })[];
 }
-const productList = ({ title, products }: ProductListProps) => {
+const ProductList = ({ title, products }: ProductListProps) => {
   return (
     <div className="space-y-6">
       <h3 className="px-5 font-semibold">{title}</h3>
@@ -22,5 +22,4 @@ const productList = ({ title, products }: ProductListProps) => {
     </div>
   );
 };
-
-export default productList;
+export default ProductList;
