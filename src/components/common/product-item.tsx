@@ -12,18 +12,22 @@ interface ProductItemProps {
   textContainerClassName?: string;
 }
 
-
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
   const firstVariant = product.variants[0];
   return (
-    <Link href="/" className="flex flex-col gap-4">
+    <Link
+      href={`/product-variant/${firstVariant.slug}`}
+      className="flex flex-col gap-4"
+    >
       <Image
-        src="https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Acesso%CC%81rios/1/78f9fa3b_c793_472a_b183_e32495033da2.jpg"
+        src={
+          "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Jaquetas+%26+Moletons/2/bc06d5b0_be4b_4c74_8c6e_8645ea7168bb.jpg"
+        }
         alt={firstVariant.name}
-        sizes="100w"
+        sizes="100vw"
         height={0}
         width={0}
-        className="h-auto w-full required-3xl"
+        className="h-auto w-full rounded-3xl"
       />
       <div
         className={cn(
