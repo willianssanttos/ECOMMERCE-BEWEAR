@@ -6,8 +6,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 interface ProductActionsProps {
-    productVariantId: string;
-  }
+  productVariantId: string;
+}
 
 const QuantitySelector = () => {
   const [quantity, setQuantity] = useState(1);
