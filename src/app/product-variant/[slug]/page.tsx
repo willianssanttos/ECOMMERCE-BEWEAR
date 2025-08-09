@@ -5,13 +5,12 @@ import { notFound } from "next/navigation";
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
-import { Button } from "@/components/ui/button";
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
 import { formatCentsToBRL } from "@/helpers/money";
 
+import ProductActions from "./components/product-action";
 import VariantSelector from "./components/variant-selector";
-import QuantitySelector from "./components/quantity-selector";
 
 interface ProductVariantProps {
   params: Promise<{ slug: string }>;
@@ -44,18 +43,15 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
     <>
       <Header />
       <div className="flex flex-col space-y-6">
-        {/* Imagem*/}
-        <div className="relative h-[380px] w-full rounded-3xl">
-          <Image
-            src={
-              "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Te%CC%82nis/2/2b938204_3950_4295_b61c_d4311045fed0.jpg"
-            }
-            sizes="100vw"
-            height={0}
-            width={0}
-            className="h-auto w-full rounded-3xl"
-          />
-        </div>
+        <Image
+          src="https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Te%CC%82nis/2/2b938204_3950_4295_b61c_d4311045fed0.jpg"
+          alt={productVariant.name}
+          sizes="100vw"
+          height={0}
+          width={0}
+          className="h-auto w-full object-cover"
+        />
+
         <div className="px-5">
           <VariantSelector
             selectedVariantSlug={productVariant.slug}
@@ -64,8 +60,7 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
         </div>
 
         <div className="px-5">
-          {/* DESCRIÇÃO*/}
-
+          {/* DESCRIÇÃO */}
           <h2 className="text-lg font-semibold">
             {productVariant.product.name}
           </h2>
@@ -76,14 +71,8 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
             {formatCentsToBRL(productVariant.priceInCents)}
           </h3>
         </div>
-        <div className="px-5">
-          <QuantitySelector />
-        </div>
 
-        <div className="flex flex-col space-y-4 px-5">
-          <Button>Comprar agora</Button>
-          <Button>Adicionar á sacola</Button>
-        </div>
+        <ProductActions productVariantId={productVariant.id} />
 
         <div className="px-5">
           <p className="text-shadow-amber-600">
@@ -92,8 +81,9 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
         </div>
 
         <ProductList title="Talvez você goste" products={likelyProducts} />
+
+        <Footer />
       </div>
-      <Footer />
     </>
   );
 };
