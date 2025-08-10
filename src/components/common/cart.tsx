@@ -3,7 +3,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ShoppingBasketIcon } from "lucide-react";
-import Image from "next/image";
 
 import { getCart } from "@/actions/get-cart";
 import { Button } from "@/components/ui/button";
@@ -21,7 +20,7 @@ import {
 import CartItem from "./cart-item";
 
 export const Cart = () => {
-  const { data: cart, isPending: cartIsLoading } = useQuery({
+  const { data: cart } = useQuery({
     queryKey: ["cart"],
     queryFn: () => getCart(),
   });
@@ -47,7 +46,9 @@ export const Cart = () => {
                     id={item.id}
                     productName={item.productVariant.product.name}
                     productVariantName={item.productVariant.name}
-                    productVariantImageUrl={"https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Calc%CC%A7as/1/1cef0dc4_e296_4809_94b6_66cb3164aa43.jpg"}
+                    productVariantImageUrl={
+                      "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Calc%CC%A7as/1/1cef0dc4_e296_4809_94b6_66cb3164aa43.jpg"
+                    }
                     productVariantPriceInCents={
                       item.productVariant.priceInCents
                     }
