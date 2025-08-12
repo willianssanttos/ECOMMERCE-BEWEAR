@@ -19,8 +19,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
-import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const addressFormSchema = z.object({
   email: z.email("Informe um e-mail válido"),
@@ -40,9 +41,15 @@ const addressFormSchema = z.object({
 
 type AddressFormValues = z.infer<typeof addressFormSchema>;
 
-const Addresses = () => {
+interface AddressesProps {
+  shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+}
+
+const Addresses = ({ shippingAddresses }: AddressesProps) => {
   const [selectedAddress, setSelectedAdress] = useState<string | null>(null);
-  const { data: addresses } = useShippingAddresses();
+  const { data: addresses } = useUserAddresses({
+    initialData: shippingAddresses,
+  });
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -107,7 +114,7 @@ const Addresses = () => {
                     <p className="text-sm">
                       {address.recipientName} • {address.email} •{" "}
                       {address.phone} • Rua: {address.street}, Nº:{" "}
-                      {address.number} {" "}
+                      {address.number}{" "}
                       {address.complement ? ` - ${address.complement}` : ""},
                       {address.neighborhood} - {address.city}/{address.state},
                       CEP {address.zipCode}
