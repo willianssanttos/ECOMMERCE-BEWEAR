@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
+import { useShippingAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const addressFormSchema = z.object({
   email: z.email("Informe um e-mail válido"),
@@ -41,6 +42,7 @@ type AddressFormValues = z.infer<typeof addressFormSchema>;
 
 const Addresses = () => {
   const [selectedAddress, setSelectedAdress] = useState<string | null>(null);
+  const { data: addresses } = useShippingAddresses();
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -84,7 +86,10 @@ const Addresses = () => {
         <CardTitle>Identificação</CardTitle>
       </CardHeader>
       <CardContent>
-        <RadioGroup value={selectedAddress} onValueChange={setSelectedAdress}>
+        <RadioGroup
+          value={selectedAddress ?? undefined}
+          onValueChange={setSelectedAdress}
+        >
           <Card>
             <CardContent>
               <div className="flex items-center space-x-2">
@@ -93,6 +98,25 @@ const Addresses = () => {
               </div>
             </CardContent>
           </Card>
+          {addresses?.map((address) => (
+            <Card key={address.id}>
+              <CardContent>
+                <div className="flex items-center space-x-2 py-3">
+                  <RadioGroupItem value={address.id} id={address.id} />
+                  <div>
+                    <p className="text-sm">
+                      {address.recipientName} • {address.email} •{" "}
+                      {address.phone} • Rua: {address.street}, Nº:{" "}
+                      {address.number} {" "}
+                      {address.complement ? ` - ${address.complement}` : ""},
+                      {address.neighborhood} - {address.city}/{address.state},
+                      CEP {address.zipCode}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </RadioGroup>
 
         {selectedAddress === "add_new" && (
