@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 
 const addressFormSchema = z.object({
   email: z.email("Informe um e-mail válido"),
@@ -58,8 +59,23 @@ const Addresses = () => {
     mode: "onChange",
   });
 
-  function handleSubmit(values: AddressFormValues) {
-    console.log(values);
+  const createShippingAddressMutation = useCreateShippingAddress();
+
+  async function handleSubmit(values: AddressFormValues) {
+    await createShippingAddressMutation.mutateAsync({
+      email: values.email,
+      fullName: values.fullName,
+      cpf: values.cpf,
+      phone: values.phone,
+      cep: values.cep,
+      address: values.address,
+      number: values.number,
+      complement: values.complement,
+      neighborhood: values.neighborhood,
+      city: values.city,
+      state: values.state,
+    });
+    form.reset();
   }
 
   return (
@@ -272,7 +288,11 @@ const Addresses = () => {
                 />
 
                 <div className="md:col-span-2">
-                  <Button type="submit" className="w-full md:w-auto">
+                  <Button
+                    type="submit"
+                    className="w-full md:w-auto"
+                    disabled={createShippingAddressMutation.isPending}
+                  >
                     Salvar endereço
                   </Button>
                 </div>
