@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
+import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
 
 const addressFormSchema = z.object({
@@ -43,13 +44,22 @@ type AddressFormValues = z.infer<typeof addressFormSchema>;
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+  defaultShippingAddressId: string | null;
 }
 
-const Addresses = ({ shippingAddresses }: AddressesProps) => {
-  const [selectedAddress, setSelectedAdress] = useState<string | null>(null);
-  const { data: addresses } = useUserAddresses({
+const Addresses = ({
+  shippingAddresses,
+  defaultShippingAddressId,
+}: AddressesProps) => {
+  const [selectedAddress, setSelectedAdress] = useState<string | null>(
+    defaultShippingAddressId || null,
+  );
+  const createShippingAddressMutation = useCreateShippingAddress();
+  const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
+  const { data: addresses, isPending } = useUserAddresses({
     initialData: shippingAddresses,
   });
+
   const form = useForm<AddressFormValues>({
     resolver: zodResolver(addressFormSchema),
     defaultValues: {
@@ -68,10 +78,8 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
     mode: "onChange",
   });
 
-  const createShippingAddressMutation = useCreateShippingAddress();
-
   async function handleSubmit(values: AddressFormValues) {
-    await createShippingAddressMutation.mutateAsync({
+    const created = await createShippingAddressMutation.mutateAsync({
       email: values.email,
       fullName: values.fullName,
       cpf: values.cpf,
@@ -85,6 +93,12 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
       state: values.state,
     });
     form.reset();
+    if (created?.id) {
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: created.id,
+      });
+      setSelectedAdress(created.id);
+    }
   }
 
   return (
@@ -117,7 +131,7 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
                       {address.number}{" "}
                       {address.complement ? ` - ${address.complement}` : ""},
                       {address.neighborhood} - {address.city}/{address.state},
-                      CEP {address.zipCode}
+                      CEP: {address.zipCode}
                     </p>
                   </div>
                 </div>
@@ -322,13 +336,31 @@ const Addresses = ({ shippingAddresses }: AddressesProps) => {
                   <Button
                     type="submit"
                     className="w-full md:w-auto"
-                    disabled={createShippingAddressMutation.isPending}
+                    disabled={
+                      createShippingAddressMutation.isPending ||
+                      updateCartShippingAddressMutation.isPending
+                    }
                   >
-                    Salvar endereço
+                    { createShippingAddressMutation.isPending ? "Salvando..." : "Salvar endereço"}
                   </Button>
                 </div>
               </form>
             </Form>
+          </div>
+        )}
+        {selectedAddress && selectedAddress !== "add_new" && (
+          <div className="mt-4">
+            <Button
+              className="w-full md:w-auto"
+              onClick={async () => {
+                await updateCartShippingAddressMutation.mutateAsync({
+                  shippingAddressId: selectedAddress,
+                });
+              }}
+              disabled={updateCartShippingAddressMutation.isPending}
+            >
+              Ir para pagamento
+            </Button>
           </div>
         )}
       </CardContent>

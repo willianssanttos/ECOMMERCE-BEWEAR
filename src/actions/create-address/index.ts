@@ -7,9 +7,12 @@ import { shippingAddressTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
 import { createShippingAddressSchema } from "./schema";
+import { revalidatePath } from "next/cache";
 
-export const createShippingAddress = async (data: createShippingAddressSchema) => {
-    createShippingAddressSchema.parse(data);
+export const createShippingAddress = async (
+  data: createShippingAddressSchema,
+) => {
+  createShippingAddressSchema.parse(data);
 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
@@ -34,6 +37,8 @@ export const createShippingAddress = async (data: createShippingAddressSchema) =
       cpfOrCnpj: data.cpf,
     })
     .returning();
+
+    revalidatePath("/cart/identification");
 
   return shippingAddress;
 };
