@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { productVariantTable } from "@/db/schema";
+import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 interface VariantSelectorProps {
   selectedVariantSlug: string;
@@ -27,9 +28,7 @@ const VariantSelector = ({
           <Image
             width={68}
             height={68}
-            src={
-              "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Te%CC%82nis/2/2b938204_3950_4295_b61c_d4311045fed0.jpg"
-            }
+            src={cleanImageUrl(variant.imageUrl)}
             alt={variant.name}
             className="rounded-xl"
           />

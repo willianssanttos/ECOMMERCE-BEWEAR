@@ -8,6 +8,7 @@ import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
 import { formatCentsToBRL } from "@/helpers/money";
+import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 import ProductActions from "./components/product-action";
 import VariantSelector from "./components/variant-selector";
@@ -44,12 +45,12 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
       <Header />
       <div className="flex flex-col space-y-6">
         <Image
-          src="https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Te%CC%82nis/2/2b938204_3950_4295_b61c_d4311045fed0.jpg"
+          src={cleanImageUrl(productVariant.imageUrl)}
           alt={productVariant.name}
           sizes="100vw"
           height={0}
           width={0}
-          className="h-auto w-full object-cover"
+          className="h-auto w-full rounded-4xl object-cover px-2"
         />
 
         <div className="px-5">

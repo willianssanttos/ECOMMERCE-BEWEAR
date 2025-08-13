@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { formatCentsToBRL } from "@/helpers/money";
 import { useCart } from "@/hooks/queries/use-cart";
+import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";
@@ -44,9 +45,9 @@ export const Cart = () => {
                     productVariantId={item.productVariant.id}
                     productName={item.productVariant.product.name}
                     productVariantName={item.productVariant.name}
-                    productVariantImageUrl={
-                      "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Calc%CC%A7as/1/1cef0dc4_e296_4809_94b6_66cb3164aa43.jpg"
-                    }
+                    productVariantImageUrl={cleanImageUrl(
+                      item.productVariant.imageUrl,
+                    )}
                     productVariantPriceInCents={
                       item.productVariant.priceInCents
                     }

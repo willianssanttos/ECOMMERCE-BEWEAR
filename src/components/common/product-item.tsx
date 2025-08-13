@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { productTable, productVariantTable } from "@/db/schema";
 import { formatCentsToBRL } from "@/helpers/money";
+import { cleanImageUrl } from "@/image-config/clean-image-url";
 import { cn } from "@/lib/utils";
 
 interface ProductItemProps {
@@ -20,9 +21,7 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
       className="flex flex-col gap-4"
     >
       <Image
-        src={
-          "https://fsc-projects-static.s3.us-east-1.amazonaws.com/BEWEAR/products/Jaquetas+%26+Moletons/2/bc06d5b0_be4b_4c74_8c6e_8645ea7168bb.jpg"
-        }
+        src={cleanImageUrl(firstVariant.imageUrl)}
         alt={firstVariant.name}
         sizes="100vw"
         height={0}
