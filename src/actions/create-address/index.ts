@@ -30,7 +30,7 @@ export const createShippingAddress = async (
       city: data.city,
       state: data.state,
       neighborhood: data.neighborhood,
-      zipCode: data.cep,
+      zipCode: data.zipCode,
       country: "BR",
       phone: data.phone,
       email: data.email,

@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -23,15 +24,16 @@ import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useRouter } from "next/navigation";
 
-const addressFormSchema = z.object({
+const formSchema = z.object({
   email: z.email("Informe um e-mail válido"),
   fullName: z.string().min(1, "Campo obrigatório"),
   cpf: z
     .string()
     .refine((value) => value.replace(/\D/g, "").length === 11, "CPF inválido"),
   phone: z.string().min(1, "Campo obrigatório"),
-  cep: z.string().min(1, "Campo obrigatório"),
+  zipCode: z.string().min(1, "Campo obrigatório"),
   address: z.string().min(1, "Campo obrigatório"),
   number: z.string().min(1, "Campo obrigatório"),
   complement: z.string().optional().or(z.literal("")),
@@ -40,7 +42,7 @@ const addressFormSchema = z.object({
   state: z.string().min(1, "Campo obrigatório"),
 });
 
-type AddressFormValues = z.infer<typeof addressFormSchema>;
+type FormValues = z.infer<typeof formSchema>;
 
 interface AddressesProps {
   shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
@@ -51,23 +53,24 @@ const Addresses = ({
   shippingAddresses,
   defaultShippingAddressId,
 }: AddressesProps) => {
-  const [selectedAddress, setSelectedAdress] = useState<string | null>(
+  const router = useRouter();
+  const [selectedAddress, setSelectedAddress] = useState<string | null>(
     defaultShippingAddressId || null,
   );
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
-  const { data: addresses, isPending } = useUserAddresses({
+  const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
 
-  const form = useForm<AddressFormValues>({
-    resolver: zodResolver(addressFormSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       fullName: "",
       cpf: "",
       phone: "",
-      cep: "",
+      zipCode: "",
       address: "",
       number: "",
       complement: "",
@@ -75,31 +78,40 @@ const Addresses = ({
       city: "",
       state: "",
     },
-    mode: "onChange",
   });
 
-  async function handleSubmit(values: AddressFormValues) {
-    const created = await createShippingAddressMutation.mutateAsync({
-      email: values.email,
-      fullName: values.fullName,
-      cpf: values.cpf,
-      phone: values.phone,
-      cep: values.cep,
-      address: values.address,
-      number: values.number,
-      complement: values.complement,
-      neighborhood: values.neighborhood,
-      city: values.city,
-      state: values.state,
-    });
-    form.reset();
-    if (created?.id) {
+  const onSubmit = async (values: FormValues) => {
+    try {
+      const newAddress =
+        await createShippingAddressMutation.mutateAsync(values);
+      toast.success("Endereço criado com sucesso!");
+      form.reset();
+      setSelectedAddress(newAddress.id);
+
       await updateCartShippingAddressMutation.mutateAsync({
-        shippingAddressId: created.id,
+        shippingAddressId: newAddress.id,
       });
-      setSelectedAdress(created.id);
+      toast.success("Endereço vinculado ao carrinho!");
+    } catch (error) {
+      toast.error("Erro ao criar endereço. Tente novamente.");
+      console.error(error);
     }
-  }
+  };
+
+  const handleGoToPayment = async () => {
+    if (!selectedAddress || selectedAddress === "add_new") return;
+
+    try {
+      await updateCartShippingAddressMutation.mutateAsync({
+        shippingAddressId: selectedAddress,
+      });
+      toast.success("Endereço selecionado para entrega!");
+      router.push("/cart/confirmation");
+    } catch (error) {
+      toast.error("Erro ao selecionar endereço. Tente novamente.");
+      console.error(error);
+    }
+  };
 
   return (
     <Card>
@@ -107,58 +119,83 @@ const Addresses = ({
         <CardTitle>Identificação</CardTitle>
       </CardHeader>
       <CardContent>
-        <RadioGroup
-          value={selectedAddress ?? undefined}
-          onValueChange={setSelectedAdress}
-        >
-          <Card>
-            <CardContent>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="add_new" id="add_new" />
-                <Label htmlFor="add_new">Adicionar novo endereço</Label>
+        {isLoading ? (
+          <div className="py-4 text-center">
+            <p>Carregando endereços...</p>
+          </div>
+        ) : (
+          <RadioGroup
+            value={selectedAddress}
+            onValueChange={setSelectedAddress}
+          >
+            {addresses?.length === 0 && (
+              <div className="py-4 text-center">
+                <p className="text-muted-foreground">
+                  Você ainda não possui endereços cadastrados.
+                </p>
               </div>
-            </CardContent>
-          </Card>
-          {addresses?.map((address) => (
-            <Card key={address.id}>
-              <CardContent>
-                <div className="flex items-center space-x-2 py-3">
-                  <RadioGroupItem value={address.id} id={address.id} />
-                  <div>
-                    <p className="text-sm">
-                      {address.recipientName} • {address.email} •{" "}
-                      {address.phone} • Rua: {address.street}, Nº:{" "}
-                      {address.number}{" "}
-                      {address.complement ? ` - ${address.complement}` : ""},
-                      {address.neighborhood} - {address.city}/{address.state},
-                      CEP: {address.zipCode}
-                    </p>
+            )}
+
+            {addresses?.map((address) => (
+              <Card key={address.id}>
+                <CardContent>
+                  <div className="flex items-center space-x-2 py-3">
+                    <RadioGroupItem value={address.id} id={address.id} />
+                    <div>
+                      <p className="text-sm">
+                        {address.recipientName} • {address.email} •{" "}
+                        {address.phone} • Rua: {address.street}, Nº:{" "}
+                        {address.number}{" "}
+                        {address.complement ? ` - ${address.complement}` : ""},
+                        {address.neighborhood} - {address.city}/{address.state},
+                        CEP: {address.zipCode}
+                      </p>
+                    </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+
+            <Card>
+              <CardContent>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="add_new" id="add_new" />
+                  <Label htmlFor="add_new">Adicionar novo endereço</Label>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </RadioGroup>
+          </RadioGroup>
+        )}
+
+        {selectedAddress && selectedAddress !== "add_new" && (
+          <div className="mt-4">
+            <Button
+              onClick={handleGoToPayment}
+              className="w-full"
+              disabled={updateCartShippingAddressMutation.isPending}
+            >
+              {updateCartShippingAddressMutation.isPending
+                ? "Processando..."
+                : "Ir para pagamento"}
+            </Button>
+          </div>
+        )}
 
         {selectedAddress === "add_new" && (
-          <div className="mt-6">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="grid grid-cols-1 gap-4 md:grid-cols-2"
-              >
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="mt-4 space-y-4"
+            >
+              <div className="grid gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
-                      <FormLabel>E-mail</FormLabel>
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="seu@email.com"
-                          {...field}
-                        />
+                        <Input placeholder="Digite seu email" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -169,7 +206,7 @@ const Addresses = ({
                   control={form.control}
                   name="fullName"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel>Nome completo</FormLabel>
                       <FormControl>
                         <Input
@@ -190,13 +227,10 @@ const Addresses = ({
                       <FormLabel>CPF</FormLabel>
                       <FormControl>
                         <PatternFormat
-                          value={field.value}
-                          onValueChange={(values) =>
-                            field.onChange(values.value)
-                          }
                           format="###.###.###-##"
-                          customInput={Input}
                           placeholder="000.000.000-00"
+                          customInput={Input}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -212,13 +246,10 @@ const Addresses = ({
                       <FormLabel>Celular</FormLabel>
                       <FormControl>
                         <PatternFormat
-                          value={field.value}
-                          onValueChange={(values) =>
-                            field.onChange(values.value)
-                          }
                           format="(##) #####-####"
+                          placeholder="(11) 99999-9999"
                           customInput={Input}
-                          placeholder="(00) 90000-0000"
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -228,19 +259,16 @@ const Addresses = ({
 
                 <FormField
                   control={form.control}
-                  name="cep"
+                  name="zipCode"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>CEP</FormLabel>
                       <FormControl>
                         <PatternFormat
-                          value={field.value}
-                          onValueChange={(values) =>
-                            field.onChange(values.value)
-                          }
                           format="#####-###"
-                          customInput={Input}
                           placeholder="00000-000"
+                          customInput={Input}
+                          {...field}
                         />
                       </FormControl>
                       <FormMessage />
@@ -252,10 +280,10 @@ const Addresses = ({
                   control={form.control}
                   name="address"
                   render={({ field }) => (
-                    <FormItem className="md:col-span-2">
+                    <FormItem>
                       <FormLabel>Endereço</FormLabel>
                       <FormControl>
-                        <Input placeholder="Rua/Av." {...field} />
+                        <Input placeholder="Digite seu endereço" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -269,7 +297,7 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Número</FormLabel>
                       <FormControl>
-                        <Input placeholder="Número" {...field} />
+                        <Input placeholder="Digite o número" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -283,7 +311,10 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Complemento</FormLabel>
                       <FormControl>
-                        <Input placeholder="Opcional" {...field} />
+                        <Input
+                          placeholder="Apto, bloco, etc. (opcional)"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -297,7 +328,7 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Bairro</FormLabel>
                       <FormControl>
-                        <Input placeholder="Bairro" {...field} />
+                        <Input placeholder="Digite o bairro" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -311,7 +342,7 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Cidade</FormLabel>
                       <FormControl>
-                        <Input placeholder="Cidade" {...field} />
+                        <Input placeholder="Digite a cidade" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -325,43 +356,29 @@ const Addresses = ({
                     <FormItem>
                       <FormLabel>Estado</FormLabel>
                       <FormControl>
-                        <Input placeholder="UF" {...field} />
+                        <Input placeholder="Digite o estado" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+              </div>
 
-                <div className="md:col-span-2">
-                  <Button
-                    type="submit"
-                    className="w-full md:w-auto"
-                    disabled={
-                      createShippingAddressMutation.isPending ||
-                      updateCartShippingAddressMutation.isPending
-                    }
-                  >
-                    { createShippingAddressMutation.isPending ? "Salvando..." : "Salvar endereço"}
-                  </Button>
-                </div>
-              </form>
-            </Form>
-          </div>
-        )}
-        {selectedAddress && selectedAddress !== "add_new" && (
-          <div className="mt-4">
-            <Button
-              className="w-full md:w-auto"
-              onClick={async () => {
-                await updateCartShippingAddressMutation.mutateAsync({
-                  shippingAddressId: selectedAddress,
-                });
-              }}
-              disabled={updateCartShippingAddressMutation.isPending}
-            >
-              Ir para pagamento
-            </Button>
-          </div>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={
+                  createShippingAddressMutation.isPending ||
+                  updateCartShippingAddressMutation.isPending
+                }
+              >
+                {createShippingAddressMutation.isPending ||
+                updateCartShippingAddressMutation.isPending
+                  ? "Salvando..."
+                  : "Salvar endereço"}
+              </Button>
+            </form>
+          </Form>
         )}
       </CardContent>
     </Card>

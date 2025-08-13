@@ -5,7 +5,7 @@ export const createShippingAddressSchema = z.object({
   fullName: z.string().min(1),
   cpf: z.string().min(1),
   phone: z.string().min(1),
-  cep: z.string().min(1),
+  zipCode: z.string().min(1),
   address: z.string().min(1),
   number: z.string().min(1),
   complement: z.string().optional().or(z.literal("")),
