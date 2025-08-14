@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -24,7 +25,6 @@ import { shippingAddressTable } from "@/db/schema";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.email("Informe um e-mail válido"),

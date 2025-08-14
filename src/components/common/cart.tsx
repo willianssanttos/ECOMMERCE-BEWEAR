@@ -5,9 +5,9 @@ import { ShoppingBasketIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 import { useCart } from "@/hooks/queries/use-cart";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 import { ScrollArea } from "../ui/scroll-area";
 import { Separator } from "../ui/separator";

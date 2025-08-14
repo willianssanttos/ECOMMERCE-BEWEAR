@@ -6,7 +6,7 @@ import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import { db } from "@/db";
 import { shippingAddressTable } from "@/db/schema";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { auth } from "@/lib/auth";
 
 import CartSummary from "../components/cart-summary";

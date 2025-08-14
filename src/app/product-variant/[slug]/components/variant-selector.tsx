@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { productVariantTable } from "@/db/schema";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 
 interface VariantSelectorProps {
   selectedVariantSlug: string;

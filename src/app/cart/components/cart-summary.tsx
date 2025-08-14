@@ -3,8 +3,8 @@ import React from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 interface CartSummaryProps {
   subTotalInCents: number;

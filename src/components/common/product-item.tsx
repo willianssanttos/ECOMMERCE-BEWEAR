@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { productTable, productVariantTable } from "@/db/schema";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
 import { cn } from "@/lib/utils";
 
 interface ProductItemProps {

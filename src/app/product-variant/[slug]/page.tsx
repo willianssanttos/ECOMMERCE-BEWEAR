@@ -7,8 +7,8 @@ import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
-import { cleanImageUrl } from "@/image-config/clean-image-url";
 
 import ProductActions from "./components/product-action";
 import VariantSelector from "./components/variant-selector";
