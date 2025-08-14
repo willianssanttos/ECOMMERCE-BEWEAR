@@ -26,6 +26,8 @@ import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
 
+import { formatAddress } from "../../helpers/address";
+
 const formSchema = z.object({
   email: z.email("Informe um e-mail válido"),
   fullName: z.string().min(1, "Campo obrigatório"),
@@ -143,12 +145,7 @@ const Addresses = ({
                     <RadioGroupItem value={address.id} id={address.id} />
                     <div>
                       <p className="text-sm">
-                        {address.recipientName} • {address.email} •{" "}
-                        {address.phone} • Rua: {address.street}, Nº:{" "}
-                        {address.number}{" "}
-                        {address.complement ? ` - ${address.complement}` : ""},
-                        {address.neighborhood} - {address.city}/{address.state},
-                        CEP: {address.zipCode}
+                        {formatAddress(address)}
                       </p>
                     </div>
                   </div>
@@ -171,7 +168,7 @@ const Addresses = ({
           <div className="mt-4">
             <Button
               onClick={handleGoToPayment}
-              className="w-full"
+              className="w-full rounded-full"
               disabled={updateCartShippingAddressMutation.isPending}
             >
               {updateCartShippingAddressMutation.isPending
@@ -366,7 +363,7 @@ const Addresses = ({
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full rounded-full"
                 disabled={
                   createShippingAddressMutation.isPending ||
                   updateCartShippingAddressMutation.isPending
