@@ -42,9 +42,6 @@ const ConfirmationPage = async () => {
       if (!cart || cart?.items.length === 0) {
         redirect("/");
       }
-      const shippingAddresses = await db.query.shippingAddressTable.findMany({
-        where: eq(shippingAddressTable.userId, session.user.id),
-      });
       const cartTotalInCents = cart.items.reduce(
         (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
         0,
