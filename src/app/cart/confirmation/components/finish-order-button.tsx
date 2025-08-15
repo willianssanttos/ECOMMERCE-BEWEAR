@@ -46,8 +46,8 @@ const FinishOrderButton = () => {
           />
           <DialogTitle className="mt-4 text-2xl">Pedido realizado!</DialogTitle>
           <DialogDescription className="font-medium">
-            Seu pedido foi efetuado com sucesso. Você pode acompanhar o status de envio
-            na seção de “Meus Pedidos”.
+            Seu pedido foi efetuado com sucesso. Você pode acompanhar o status
+            de envio na seção de “Meus Pedidos”.
           </DialogDescription>
 
           <DialogFooter>

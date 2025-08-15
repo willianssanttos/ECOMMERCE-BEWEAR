@@ -1,5 +1,5 @@
 "use client"; //Esse cmponent tambem e um use clent, pois esta sendo renderizado
-//  dentro de outro com´ponente use client, sendo assim se torna automaticamente
+//  dentro de outro componente use client, sendo assim se torna automaticamente
 
 import { ShoppingBasketIcon } from "lucide-react";
 import Link from "next/link";
