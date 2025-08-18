@@ -5,6 +5,7 @@ import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/db";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { auth } from "@/lib/auth";
 
 import CartSummary from "../components/cart-summary";
@@ -61,7 +62,7 @@ const ConfirmationPage = async () => {
           </CardContent>
         </Card>
         <CartSummary
-          subTotalInCents={cartTotalInCents}
+          subtotalInCents={cartTotalInCents}
           totalInCents={cartTotalInCents}
           products={cart.items.map((item) => ({
             id: item.productVariant.id,
@@ -69,7 +70,7 @@ const ConfirmationPage = async () => {
             variantName: item.productVariant.name,
             quantity: item.quantity,
             priceInCents: item.productVariant.priceInCents,
-            imageUrl: item.productVariant.imageUrl,
+            imageUrl: cleanImageUrl(item.productVariant.imageUrl),
           }))}
         />
       </div>

@@ -6,6 +6,7 @@ import Stripe from "stripe";
 
 import { db } from "@/db";
 import { orderItemTable, orderTable } from "@/db/schema";
+import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { auth } from "@/lib/auth";
 
 import {
@@ -57,7 +58,7 @@ export const createCheckoutSession = async (
           product_data: {
             name: `${orderItem.productVariant.product.name} - ${orderItem.productVariant.name}`,
             description: orderItem.productVariant.product.description,
-            images: [orderItem.productVariant.imageUrl],
+            images: [cleanImageUrl(orderItem.productVariant.imageUrl)],
           },
           // Em centavos
           unit_amount: orderItem.priceInCents,
