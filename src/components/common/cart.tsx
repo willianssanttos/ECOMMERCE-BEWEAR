@@ -1,7 +1,7 @@
 "use client"; //Esse cmponent tambem e um use clent, pois esta sendo renderizado
 //  dentro de outro componente use client, sendo assim se torna automaticamente
 
-import { ShoppingBasketIcon } from "lucide-react";
+import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ export const Cart = () => {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="outline" size="icon">
-          <ShoppingBasketIcon />
+          <ShoppingBagIcon />
         </Button>
       </SheetTrigger>
       <SheetContent>
