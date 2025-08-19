@@ -69,7 +69,7 @@ const Orders = ({ orders }: OrdersProps) => {
                           alt={product.productName}
                           width={78}
                           height={78}
-                          className="rounded-lg"
+                          className="rounded-lg mt-2"
                         />
                         <div className="flex flex-col gap-1">
                           <p className="text-sm font-semibold">

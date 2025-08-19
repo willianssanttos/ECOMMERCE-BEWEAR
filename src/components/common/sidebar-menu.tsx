@@ -9,8 +9,10 @@ import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 
 export function SidebarMenu() {
+    const { data: session } = authClient.useSession();
+
   return (
-    <nav className="flex flex-col space-y-4 text-sm font-medium">
+    <div className="flex flex-col space-y-4 text-sm font-medium">
       {/* Top Items */}
       <Link href="/" className="flex items-center gap-2 hover:text-black">
         <HomeIcon className="h-4 w-4" />
@@ -34,7 +36,7 @@ export function SidebarMenu() {
 
       {/* Categorias */}
 
-      <Link href="/camisetas" className="hover:text-black">
+      <Link href="category/camisetas" className="hover:text-black">
         Camisetas
       </Link>
       <Link href="/bermudas" className="hover:text-black">
@@ -56,14 +58,16 @@ export function SidebarMenu() {
       <hr className="my-4" />
 
       {/* Logout */}
-      <button
+      {session?.user && (
+        <button
         className="flex items-center gap-2 text-gray-500 hover:text-red-600"
         onClick={() => authClient.signOut()}
       >
         <LogOutIcon />
         Sair da conta
       </button>
-    </nav>
+      )}
+    </div>
   );
 }
 export default SidebarMenu;
