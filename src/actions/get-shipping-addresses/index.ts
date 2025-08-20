@@ -22,6 +22,6 @@ export const getShippingAddresses = async () => {
     return addresses;
   } catch (error) {
     toast.error("Erro ao buscar endereços:");
-    throw new Error("Erro ao buscar endereços");
+    throw error;
   }
 };
