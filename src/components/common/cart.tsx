@@ -1,7 +1,7 @@
 "use client"; //Esse cmponent tambem e um use clent, pois esta sendo renderizado
-//  dentro de outro com´ponente use client, sendo assim se torna automaticamente
+//  dentro de outro componente use client, sendo assim se torna automaticamente
 
-import { ShoppingBasketIcon } from "lucide-react";
+import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -25,13 +25,21 @@ export const Cart = () => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon">
-          <ShoppingBasketIcon />
+        <Button variant="outline" size="icon" className="relative">
+          <ShoppingBagIcon />
+          {cart?.items && cart?.items.length > 0 && (
+            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+              {cart?.items.length}
+            </span>
+          )}
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
-          <SheetTitle>Carrinho</SheetTitle>
+          <div className="flex items-center gap-2">
+            <ShoppingBagIcon className="h-5 w-5" />
+            <SheetTitle>Sacola</SheetTitle>
+          </div>
         </SheetHeader>
 
         <div className="flex h-full flex-col px-5 pb-5">
@@ -59,7 +67,7 @@ export const Cart = () => {
           </div>
 
           {cart?.items && cart?.items.length > 0 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <Separator />
 
               <div className="flex items-center justify-between text-xs font-medium">
@@ -80,10 +88,20 @@ export const Cart = () => {
                 <p>Total</p>
                 <p>{formatCentsToBRL(cart?.totalPriceInCents ?? 0)}</p>
               </div>
+              <div className="mt-3 flex flex-col space-y-2">
+                <Button className="rounded-full" asChild size="lg">
+                  <Link href="/cart/identification">Finalizar compra</Link>
+                </Button>
 
-              <Button className="mt-5 rounded-full" asChild size="lg">
-                <Link href="/cart/identification">Finalizar compra</Link>
-              </Button>
+                <Button
+                  className="rounded-full"
+                  asChild
+                  size="lg"
+                  variant="outline"
+                >
+                  <Link href="/">Continuar comprando</Link>
+                </Button>
+              </div>
             </div>
           )}
         </div>

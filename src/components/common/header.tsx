@@ -1,6 +1,6 @@
 "use client";
 
-import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
+import { LogInIcon, MenuIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -16,6 +16,7 @@ import {
   SheetTrigger,
 } from "../ui/sheet";
 import { Cart } from "./cart";
+import SidebarMenu from "./sidebar-menu";
 
 export const Header = () => {
   const { data: session } = authClient.useSession();
@@ -25,7 +26,8 @@ export const Header = () => {
         <Image src="/logo.png" alt="BEWEAR" width={250} height={26.14} />
       </Link>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
+        <Cart />
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
@@ -58,29 +60,29 @@ export const Header = () => {
                         </span>
                       </div>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => authClient.signOut()}
-                    >
-                      <LogOutIcon />
-                    </Button>
                   </div>
                 </>
               ) : (
                 <div className="flex items-center justify-between">
                   <h2 className="font-semibold">Olá. Faça seu login!</h2>
-                  <Button size="icon" asChild variant="outline">
+                  <Button
+                    className="rounded-full font-semibold"
+                    size="lg"
+                    asChild
+                  >
                     <Link href="/authentication">
+                      Login
                       <LogInIcon />
                     </Link>
                   </Button>
                 </div>
               )}
             </div>
+            <div className="px-5">
+              <SidebarMenu />
+            </div>
           </SheetContent>
         </Sheet>
-        <Cart />
       </div>
     </header>
   );

@@ -7,7 +7,7 @@ import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 
 interface CartSummaryProps {
-  subTotalInCents: number;
+  subtotalInCents: number;
   totalInCents: number;
   products: Array<{
     id: string;
@@ -20,7 +20,7 @@ interface CartSummaryProps {
 }
 
 const CartSummary = ({
-  subTotalInCents,
+  subtotalInCents,
   totalInCents,
   products,
 }: CartSummaryProps) => {
@@ -33,7 +33,7 @@ const CartSummary = ({
         <div className="flex justify-between">
           <p className="text-sm">Subtotal</p>
           <p className="text-muted-foreground text-sm font-medium">
-            {formatCentsToBRL(subTotalInCents)}
+            {formatCentsToBRL(subtotalInCents)}
           </p>
         </div>
         <div className="flex justify-between">

@@ -144,9 +144,7 @@ const Addresses = ({
                   <div className="flex items-center space-x-2 py-3">
                     <RadioGroupItem value={address.id} id={address.id} />
                     <div>
-                      <p className="text-sm">
-                        {formatAddress(address)}
-                      </p>
+                      <p className="text-sm">{formatAddress(address)}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -168,7 +166,8 @@ const Addresses = ({
           <div className="mt-4">
             <Button
               onClick={handleGoToPayment}
-              className="w-full rounded-full" size="lg"
+              className="w-full rounded-full"
+              size="lg"
               disabled={updateCartShippingAddressMutation.isPending}
             >
               {updateCartShippingAddressMutation.isPending

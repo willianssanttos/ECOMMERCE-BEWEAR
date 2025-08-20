@@ -14,14 +14,12 @@ const Home = async () => {
       variants: true,
     },
   });
-
   const newlyCreatedProducts = await db.query.productTable.findMany({
     orderBy: [desc(productTable.createdAt)],
     with: {
       variants: true,
     },
   });
-
   const categories = await db.query.categoryTable.findMany({});
 
   return (
@@ -39,9 +37,9 @@ const Home = async () => {
           />
         </div>
 
-        <ProductList products={products} title="Mais vendidos " />
+        <ProductList products={products} title="Mais vendidos" />
 
-        <div className="PX-5">
+        <div className="px-5">
           <CategorySelector categories={categories} />
         </div>
 
@@ -56,7 +54,7 @@ const Home = async () => {
           />
         </div>
 
-        <ProductList products={newlyCreatedProducts} title="Novos produtos " />
+        <ProductList products={newlyCreatedProducts} title="Novos produtos" />
         <Footer />
       </div>
     </>

@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  stripe:
+    image: stripe/stripe-cli:latest
+    container_name: stripe-cli
+    restart: unless-stopped
+    volumes:
+      # Pasta local para salvar as credenciais do stripe login
+      - ./stripe-config:/root/.config/stripe
+    command: >
+      listen --forward-to host.docker.internal:3000/api/stripe/webhook

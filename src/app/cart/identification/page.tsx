@@ -57,7 +57,7 @@ const IdentificationPage = async () => {
           defaultShippingAddressId={cart.shippingAddress?.id || null}
         />
         <CartSummary
-          subTotalInCents={cartTotalInCents}
+          subtotalInCents={cartTotalInCents}
           totalInCents={cartTotalInCents}
           products={cart.items.map((item) => ({
             id: item.productVariant.id,
@@ -69,9 +69,7 @@ const IdentificationPage = async () => {
           }))}
         />
       </div>
-      <div className="mt-12">
         <Footer />
-      </div>
     </div>
   );
 };
