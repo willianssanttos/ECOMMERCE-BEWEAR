@@ -7,12 +7,12 @@ import ProductList from "@/components/common/product-list";
 import { getCategories } from "@/data/categories/get-categories";
 import {
   getNewlyCreatedProducts,
-  getProductsWithVariants,
+  getProducts,
 } from "@/data/products/get-product";
 
 const Home = async () => {
   const [products, newlyCreatedProducts, categories] = await Promise.all([
-    getProductsWithVariants(),
+    getProducts(),
     getNewlyCreatedProducts(),
     getCategories(),
   ]);
