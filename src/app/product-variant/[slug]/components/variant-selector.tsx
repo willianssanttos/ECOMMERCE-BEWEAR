@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { ProductVariantDTO } from "@/data/products/get-product";
+import { ProductVariantDTO } from "@/data/products/product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 
 interface VariantSelectorProps {

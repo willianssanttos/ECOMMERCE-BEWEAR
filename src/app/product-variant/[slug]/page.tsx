@@ -3,10 +3,7 @@ import Image from "next/image";
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
-import {
-  getLikelyProducts,
-  getProductVariant,
-} from "@/data/products/get-product";
+import { getLikelyProducts, getProductVariant } from "@/data/products/product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 

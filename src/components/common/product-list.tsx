@@ -1,6 +1,6 @@
 "use client";
 
-import type { ProductDTO } from "@/data/products/get-product";
+import type { ProductDTO } from "@/data/products/product";
 
 import ProductItem from "./product-item";
 
@@ -8,7 +8,6 @@ interface ProductListProps {
   title: string;
   products: ProductDTO[];
 }
-
 
 const ProductList = ({ title, products }: ProductListProps) => {
   return (

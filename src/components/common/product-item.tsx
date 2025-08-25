@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import type { ProductDTO } from "@/data/products/get-product";
+import type { ProductDTO } from "@/data/products/product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 import { cn } from "@/lib/utils";

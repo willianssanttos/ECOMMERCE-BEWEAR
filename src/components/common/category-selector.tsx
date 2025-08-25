@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { CategoriesDTO } from "@/data/categories/get-categories";
+import type { CategoriesDTO } from "@/data/categories/categories";
 
 import { Button } from "../ui/button";
 
