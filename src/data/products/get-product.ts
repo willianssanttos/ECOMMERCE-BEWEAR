@@ -6,24 +6,34 @@ import { notFound } from "next/navigation";
 import { db } from "@/db";
 import { productTable, productVariantTable } from "@/db/schema";
 
-// implementar os dtos, para desaclopação dos retornos dos dados retornado do drizzle com a UI
-//interface Products {}
-
-interface ProductVariantProps {
-  params: Promise<{ slug: string }>;
+export interface ProductDTO {
+  id: string;
+  name: string;
+  description?: string | null;
+  categoryId?: string | null;
+  variants?: ProductVariantDTO[];
 }
 
-export const getProducts = async () => {
+export interface ProductVariantDTO {
+  id: string;
+  name: string;
+  slug: string;
+  imageUrl: string;
+  priceInCents: number;
+  product?: ProductDTO;
+}
+
+export const getProducts = async (): Promise<ProductDTO[]> => {
   const products = await db.query.productTable.findMany({
     with: {
       variants: true,
     },
   });
 
-  return products;
+  return products as ProductDTO[];
 };
 
-export const getNewlyCreatedProducts = async () => {
+export const getNewlyCreatedProducts = async (): Promise<ProductDTO[]> => {
   const newlyCreatedProducts = await db.query.productTable.findMany({
     orderBy: [desc(productTable.createdAt)],
     with: {
@@ -31,11 +41,12 @@ export const getNewlyCreatedProducts = async () => {
     },
   });
 
-  return newlyCreatedProducts;
+  return newlyCreatedProducts as ProductDTO[];
 };
 
-export const getProductVariant = async ({ params }: ProductVariantProps) => {
-  const { slug } = await params;
+export const getProductVariant = async (
+  slug: string,
+): Promise<ProductVariantDTO> => {
   const productVariant = await db.query.productVariantTable.findFirst({
     where: eq(productVariantTable.slug, slug),
     with: {
@@ -49,15 +60,18 @@ export const getProductVariant = async ({ params }: ProductVariantProps) => {
   if (!productVariant) {
     return notFound();
   }
-  return productVariant;
+  return productVariant as ProductVariantDTO;
 };
 
-export const getLikelyProducts = async () => {
+export const getLikelyProducts = async (
+  categoryId?: string,
+): Promise<ProductDTO[]> => {
+  if (!categoryId) return [];
   const likelyProducts = await db.query.productTable.findMany({
-    where: eq(productTable.categoryId, productVariant.product.categoryId),
+    where: eq(productTable.categoryId, categoryId),
     with: {
       variants: true,
     },
   });
-  return likelyProducts;
+  return likelyProducts as ProductDTO[];
 };

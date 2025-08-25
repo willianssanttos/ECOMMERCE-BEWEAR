@@ -1,20 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { productTable, productVariantTable } from "@/db/schema";
+import type { ProductDTO } from "@/data/products/get-product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 import { cn } from "@/lib/utils";
 
 interface ProductItemProps {
-  product: typeof productTable.$inferSelect & {
-    variants: (typeof productVariantTable.$inferSelect)[];
-  };
+  product: ProductDTO;
   textContainerClassName?: string;
 }
 
 const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
-  const firstVariant = product.variants[0];
+  const firstVariant = product.variants?.[0];
+  if (!firstVariant) return;
+
   return (
     <Link
       href={`/product-variant/${firstVariant.slug}`}
@@ -34,7 +34,7 @@ const ProductItem = ({ product, textContainerClassName }: ProductItemProps) => {
           textContainerClassName,
         )}
       >
-        <p className="truncate text-sm font-medium">{product.name}</p>
+        <p className="truncate text-sm font-medium">{product?.name}</p>
         <p className="text-muted-foreground truncate text-xs font-medium">
           {product.description}
         </p>

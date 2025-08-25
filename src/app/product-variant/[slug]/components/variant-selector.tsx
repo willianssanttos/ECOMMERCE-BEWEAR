@@ -1,17 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { productVariantTable } from "@/db/schema";
+import { ProductVariantDTO } from "@/data/products/get-product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 
 interface VariantSelectorProps {
   selectedVariantSlug: string;
-  variants: (typeof productVariantTable.$inferSelect)[];
+  variants?: ProductVariantDTO[];
 }
 
 const VariantSelector = ({
   selectedVariantSlug,
-  variants,
+  variants = [],
 }: VariantSelectorProps) => {
   return (
     <div className="flex items-center gap-4">
