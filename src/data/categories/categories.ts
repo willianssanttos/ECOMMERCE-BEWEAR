@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 
 import { db } from "@/db";
-import { categoryTable, productTable } from "@/db/schema";
+import { categoryTable } from "@/db/schema";
 
 export interface CategoriesDTO {
   id: string;

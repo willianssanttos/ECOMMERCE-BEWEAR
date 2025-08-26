@@ -1,4 +1,7 @@
+import "server-only";
+
 import { eq } from "drizzle-orm";
+import { redirect } from "next/navigation";
 
 import { db } from "@/db";
 import { orderTable } from "@/db/schema";
@@ -26,8 +29,9 @@ export interface OrderDTO {
 
 export const getOrders = async () => {
   const session = await getSessionUser();
-  if (!session?.user?.id) return [];
-
+  if (!session?.user.id) {
+    redirect("/login");
+  }
   const orders = await db.query.orderTable.findMany({
     where: eq(orderTable.userId, session.user.id),
     with: {
