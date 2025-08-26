@@ -9,25 +9,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { orderTable } from "@/db/schema";
+import { OrderDTO } from "@/data/my-orders/my-orders";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 
 interface OrdersProps {
-  orders: Array<{
-    id: string;
-    totalPriceInCents: number;
-    status: (typeof orderTable.$inferSelect)["status"];
-    createdAt: Date;
-    items: Array<{
-      id: string;
-      imageUrl: string;
-      productName: string;
-      productVariantName: string;
-      priceInCents: number;
-      quantity: number;
-    }>;
-  }>;
+  orders: OrderDTO[];
 }
 
 const Orders = ({ orders }: OrdersProps) => {
@@ -69,7 +56,7 @@ const Orders = ({ orders }: OrdersProps) => {
                           alt={product.productName}
                           width={78}
                           height={78}
-                          className="rounded-lg mt-2"
+                          className="mt-2 rounded-lg"
                         />
                         <div className="flex flex-col gap-1">
                           <p className="text-sm font-semibold">

@@ -27,6 +27,7 @@ const AddToCartButton = ({
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
+  
   return (
     <Button
       className="rounded-full"

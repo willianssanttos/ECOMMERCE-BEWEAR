@@ -1,44 +1,24 @@
-import { eq } from "drizzle-orm";
 import Image from "next/image";
-import { notFound } from "next/navigation";
 
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import ProductList from "@/components/common/product-list";
-import { db } from "@/db";
-import { productTable, productVariantTable } from "@/db/schema";
+import { getLikelyProducts, getProductVariant } from "@/data/products/product";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
 
 import ProductActions from "./components/product-action";
 import VariantSelector from "./components/variant-selector";
 
-interface ProductVariantProps {
+interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-const ProductVariantPage = async ({ params }: ProductVariantProps) => {
+const ProductVariantPage = async ({ params }: PageProps) => {
   const { slug } = await params;
-  const productVariant = await db.query.productVariantTable.findFirst({
-    where: eq(productVariantTable.slug, slug),
-    with: {
-      product: {
-        with: {
-          variants: true,
-        },
-      },
-    },
-  });
-  if (!productVariant) {
-    return notFound();
-  }
-
-  const likelyProducts = await db.query.productTable.findMany({
-    where: eq(productTable.categoryId, productVariant.product.categoryId),
-    with: {
-      variants: true,
-    },
-  });
+  const productVariant = await getProductVariant(slug);
+  const categoryId = productVariant.product?.categoryId ?? undefined;
+  const likelyProducts = await getLikelyProducts(categoryId);
 
   return (
     <>
@@ -56,14 +36,14 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
         <div className="px-5">
           <VariantSelector
             selectedVariantSlug={productVariant.slug}
-            variants={productVariant.product.variants}
+            variants={productVariant.product?.variants}
           />
         </div>
 
         <div className="px-5">
           {/* DESCRIÇÃO */}
           <h2 className="text-lg font-semibold">
-            {productVariant.product.name}
+            {productVariant.product?.name}
           </h2>
           <h3 className="text-muted-foreground text-sm">
             {productVariant.name}
@@ -77,12 +57,11 @@ const ProductVariantPage = async ({ params }: ProductVariantProps) => {
 
         <div className="px-5">
           <p className="text-shadow-amber-600">
-            {productVariant.product.description}
+            {productVariant.product?.description}
           </p>
         </div>
 
         <ProductList title="Talvez você goste" products={likelyProducts} />
-
         <Footer />
       </div>
     </>

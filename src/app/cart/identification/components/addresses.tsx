@@ -21,7 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { shippingAddressTable } from "@/db/schema";
+import { ShippingAddressDTO } from "@/data/identification/identification";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
@@ -47,7 +47,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface AddressesProps {
-  shippingAddresses: (typeof shippingAddressTable.$inferSelect)[];
+  shippingAddresses: ShippingAddressDTO[];
   defaultShippingAddressId: string | null;
 }
 
