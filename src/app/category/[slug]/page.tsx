@@ -10,6 +10,7 @@ const CategoryPage = async ({ params }: CategoryPageProps) => {
   const { slug } = await params;
   const category = await getCategoryPage(slug);
   const products = await getLikelyProducts(category.id);
+  
   return (
     <>
       <Header />

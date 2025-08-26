@@ -47,7 +47,7 @@ export interface IdentificationDTO {
   }>;
 }
 
-export const getIdentification =
+export const getIdentificationAndConfirmation =
   async (): Promise<IdentificationDTO | null> => {
     const session = await getSessionUser();
     if (!session?.user.id) {
@@ -69,48 +69,48 @@ export const getIdentification =
         },
       },
     });
-    
-  if (!cart) return null;
 
-  return {
-    cartId: cart.id,
-    userId: cart.userId,
-    createdAt: cart.createdAt,
-    shippingAddress: cart.shippingAddress
-      ? {
-          id: cart.shippingAddress.id,
-          userId: cart.shippingAddress.userId,
-          recipientName: cart.shippingAddress.recipientName,
-          street: cart.shippingAddress.street,
-          number: cart.shippingAddress.number,
-          complement: cart.shippingAddress.complement,
-          city: cart.shippingAddress.city,
-          state: cart.shippingAddress.state,
-          neighborhood: cart.shippingAddress.neighborhood,
-          zipCode: cart.shippingAddress.zipCode,
-          country: cart.shippingAddress.country,
-          phone: cart.shippingAddress.phone,
-          email: cart.shippingAddress.email,
-          cpfOrCnpj: cart.shippingAddress.cpfOrCnpj,
-          createdAt: cart.shippingAddress.createdAt,
-        }
-      : null,
-    items: cart.items.map((item) => ({
-      id: item.id,
-      quantity: item.quantity,
-      productVariant: {
-        id: item.productVariant.id,
-        name: item.productVariant.name,
-        priceInCents: item.productVariant.priceInCents,
-        imageUrl: item.productVariant.imageUrl,
-        product: {
-          id: item.productVariant.product.id,
-          name: item.productVariant.product.name,
+    if (!cart) return null;
+
+    return {
+      cartId: cart.id,
+      userId: cart.userId,
+      createdAt: cart.createdAt,
+      shippingAddress: cart.shippingAddress
+        ? {
+            id: cart.shippingAddress.id,
+            userId: cart.shippingAddress.userId,
+            recipientName: cart.shippingAddress.recipientName,
+            street: cart.shippingAddress.street,
+            number: cart.shippingAddress.number,
+            complement: cart.shippingAddress.complement,
+            city: cart.shippingAddress.city,
+            state: cart.shippingAddress.state,
+            neighborhood: cart.shippingAddress.neighborhood,
+            zipCode: cart.shippingAddress.zipCode,
+            country: cart.shippingAddress.country,
+            phone: cart.shippingAddress.phone,
+            email: cart.shippingAddress.email,
+            cpfOrCnpj: cart.shippingAddress.cpfOrCnpj,
+            createdAt: cart.shippingAddress.createdAt,
+          }
+        : null,
+      items: cart.items.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        productVariant: {
+          id: item.productVariant.id,
+          name: item.productVariant.name,
+          priceInCents: item.productVariant.priceInCents,
+          imageUrl: item.productVariant.imageUrl,
+          product: {
+            id: item.productVariant.product.id,
+            name: item.productVariant.product.name,
+          },
         },
-      },
-    })),
+      })),
+    };
   };
-};
 
 export const getShippingAddresses = async (): Promise<ShippingAddressDTO[]> => {
   const session = await getSessionUser();

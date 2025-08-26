@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import Footer from "@/components/common/footer";
 import { Header } from "@/components/common/header";
 import {
-  getIdentification,
+  getIdentificationAndConfirmation,
   getShippingAddresses,
 } from "@/data/identification/identification";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
@@ -12,13 +12,12 @@ import CartSummary from "../components/cart-summary";
 import Addresses from "./components/addresses";
 
 const IdentificationPage = async () => {
-  const cart = await getIdentification();
-
+  const cart = await getIdentificationAndConfirmation();
   if (!cart || cart?.items.length === 0) {
     redirect("/");
   }
-  const shippingAddresses = await getShippingAddresses();
 
+  const shippingAddresses = await getShippingAddresses();
   const cartTotalInCents = cart.items.reduce(
     (acc, item) => acc + item.productVariant.priceInCents * item.quantity,
     0,
