@@ -1,5 +1,4 @@
-"use client"; //Esse cmponent tambem e um use clent, pois esta sendo renderizado
-//  dentro de outro componente use client, sendo assim se torna automaticamente
+"use client";
 
 import { ShoppingBagIcon } from "lucide-react";
 import Link from "next/link";
@@ -27,11 +26,9 @@ export const Cart = () => {
       <SheetTrigger asChild>
         <Button variant="outline" size="icon" className="relative">
           <ShoppingBagIcon />
-          {cart?.items && cart?.items.length > 0 && (
-            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
-              {cart?.items.length}
-            </span>
-          )}
+          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+            {cart?.items?.length ?? 0}
+          </span>
         </Button>
       </SheetTrigger>
       <SheetContent>

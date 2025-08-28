@@ -22,7 +22,7 @@ export const POST = async (request: Request) => {
   );
   if (event.type === "checkout.session.completed") {
     console.log("Checkout session completed:");
-    const session = event.data.object as Stripe.Checkout.Session;
+    const session = event.data.object;
     const orderId = session.metadata?.orderId;
     if (!orderId) {
       return NextResponse.error();
