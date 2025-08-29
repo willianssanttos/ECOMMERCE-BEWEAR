@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "../ui/button";
@@ -7,7 +9,7 @@ import { Button } from "../ui/button";
 interface GoogleSignInButtonProps {
   onLoginSuccess?: () => void;
   className?: string;
-  size?: "default" | "sm" | "lg" | "icon" | null | undefined
+  size?: "default" | "sm" | "lg" | "icon" | null | undefined;
 }
 
 const GoogleSignInButton = ({
@@ -15,11 +17,28 @@ const GoogleSignInButton = ({
   className = "w-full rounded-full",
   size = "lg",
 }: GoogleSignInButtonProps) => {
+  const { data: session } = authClient.useSession();
+
+ useEffect(() => {
+    if (session?.user && onLoginSuccess) {
+      // ✅ Pequeno delay para garantir que tudo esteja carregado
+      const timer = setTimeout(() => {
+        onLoginSuccess();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [session, onLoginSuccess]);
+
   const handleGoogleSignIn = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-    });
-    if (onLoginSuccess) onLoginSuccess();
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+      });
+      // ❌ Não chamar onLoginSuccess aqui diretamente
+    } catch (error) {
+      console.error("Google sign-in failed:", error);
+    }
   };
 
   return (

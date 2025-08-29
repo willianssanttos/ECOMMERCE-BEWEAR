@@ -5,9 +5,9 @@ import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
 
-export function SidebarMenu() {
-  const { data: session } = authClient.useSession();
+import SignOut from "./sign-out";
 
+export function SidebarMenu() {
   const categories = [
     { name: "Camisetas", slug: "camisetas" },
     { name: "Bermuda & Shorts", slug: "bermuda-shorts" },
@@ -48,17 +48,7 @@ export function SidebarMenu() {
       })}
 
       <hr className="my-4" />
-
-      {/* Logout */}
-      {session?.user && (
-        <button
-          className="flex items-center gap-2 text-gray-500 hover:text-red-600"
-          onClick={() => authClient.signOut()}
-        >
-          <LogOutIcon />
-          Sair da conta
-        </button>
-      )}
+      <SignOut />
     </div>
   );
 }

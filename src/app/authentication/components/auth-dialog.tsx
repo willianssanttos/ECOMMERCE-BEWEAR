@@ -11,7 +11,7 @@ import {
 interface AuthDialogProps {
   open: boolean;
   onClose: () => void;
-  onLoginSuccess?: () => void | undefined;
+  onLoginSuccess?: () => void | Promise<void>;
 }
 
 export function AuthDialog({ open, onClose, onLoginSuccess }: AuthDialogProps) {
@@ -26,6 +26,7 @@ export function AuthDialog({ open, onClose, onLoginSuccess }: AuthDialogProps) {
           veste com personalidade.
         </p>
 
+        {/* ✅ Passar onLoginSuccess para o GoogleSignInButton */}
         <GoogleSignInButton onLoginSuccess={onLoginSuccess} />
       </DialogContent>
     </Dialog>
