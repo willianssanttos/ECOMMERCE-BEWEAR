@@ -1,8 +1,12 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { MinusIcon, PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { addProductToCart } from "@/actions/add-cart-product";
+import LoginProduct from "@/components/common/login-product";
 import { Button } from "@/components/ui/button";
 
 import AddToCartButton from "./add-to-cart-button";
@@ -13,6 +17,17 @@ interface ProductActionsProps {
 
 const ProductActions = ({ productVariantId }: ProductActionsProps) => {
   const [quantity, setQuantity] = useState(1);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const { mutateAsync, isPending } = useMutation({
+    mutationKey: ["addProductToCart"],
+    mutationFn: async (vars: { productVariantId: string; quantity: number }) =>
+      addProductToCart(vars),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
 
   const handleDecrement = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : prev));
@@ -20,6 +35,11 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
 
   const handleIncrement = () => {
     setQuantity((prev) => prev + 1);
+  };
+
+  const handleBuyNow = async () => {
+    await mutateAsync({ productVariantId, quantity });
+    router.push("/cart/identification");
   };
 
   return (
@@ -43,9 +63,18 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
           productVariantId={productVariantId}
           quantity={quantity}
         />
-        <Button className="rounded-full" size="lg">
-          Comprar agora
-        </Button>
+        <LoginProduct onAfterLogin={handleBuyNow}>
+          {(isLogged, trigger) => (
+            <Button
+              className="rounded-full"
+              size="lg"
+              onClick={trigger}
+              disabled={isPending}
+            >
+              Comprar agora
+            </Button>
+          )}
+        </LoginProduct>
       </div>
     </>
   );
