@@ -18,16 +18,15 @@ const AddToCartButton = ({
 }: AddToCartButtonProps) => {
   const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
-    mutationKey: ["addProductToCart"],
-    mutationFn: async (vars: { productVariantId: string; quantity: number }) =>
-      addProductToCart(vars),
+    mutationKey: ["addProductToCart", productVariantId, quantity],
+    mutationFn: () => addProductToCart({ productVariantId, quantity }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
   });
 
   const handleAddToCart = async () => {
-    await mutateAsync({ productVariantId, quantity });
+    await mutateAsync();
   };
 
   return (

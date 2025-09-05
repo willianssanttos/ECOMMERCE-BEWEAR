@@ -1,9 +1,7 @@
 "use client";
 
-import { HomeIcon, LogOutIcon, PackageIcon } from "lucide-react";
+import { HomeIcon, PackageIcon } from "lucide-react";
 import Link from "next/link";
-
-import { authClient } from "@/lib/auth-client";
 
 import SignOut from "./sign-out";
 

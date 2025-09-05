@@ -1,44 +1,20 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { authClient } from "@/lib/auth-client";
 
 import { Button } from "../ui/button";
 
-interface GoogleSignInButtonProps {
-  onLoginSuccess?: () => void;
-  className?: string;
-  size?: "default" | "sm" | "lg" | "icon" | null | undefined;
-}
-
 const GoogleSignInButton = ({
-  onLoginSuccess,
   className = "w-full rounded-full",
   size = "lg",
-}: GoogleSignInButtonProps) => {
-  const { data: session } = authClient.useSession();
-
- useEffect(() => {
-    if (session?.user && onLoginSuccess) {
-      // ✅ Pequeno delay para garantir que tudo esteja carregado
-      const timer = setTimeout(() => {
-        onLoginSuccess();
-      }, 1000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [session, onLoginSuccess]);
+}: {
+  className?: string;
+  size?: "default" | "sm" | "lg" | "icon" | null | undefined;
+}) => {
+  const { isPending } = authClient.useSession();
 
   const handleGoogleSignIn = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-      });
-      // ❌ Não chamar onLoginSuccess aqui diretamente
-    } catch (error) {
-      console.error("Google sign-in failed:", error);
-    }
+    await authClient.signIn.social({ provider: "google" });
   };
 
   return (
@@ -48,6 +24,7 @@ const GoogleSignInButton = ({
       onClick={handleGoogleSignIn}
       size={size}
       type="button"
+      disabled={isPending}
     >
       <svg viewBox="0 0 24 24" className="mr-2 h-4 w-4">
         <path
@@ -67,7 +44,7 @@ const GoogleSignInButton = ({
           fill="#EA4335"
         />
       </svg>
-      Entrar com Google
+      {isPending ? "Carregando..." : "Entrar com Google"}
     </Button>
   );
 };
