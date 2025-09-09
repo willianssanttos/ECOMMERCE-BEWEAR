@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { AuthDialog } from "@/app/authentication/components/auth-dialog";
 import { authClient } from "@/lib/auth-client";
@@ -11,38 +11,37 @@ interface LoginProductProps {
 }
 
 const LoginProduct = ({ children, onAfterLogin }: LoginProductProps) => {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [pending, setPending] = useState(false);
+  const pendingActionRef = useRef<null | (() => Promise<void>)>(null);
 
   useEffect(() => {
-    if (pending && session?.user.id) {
-      setPending(false);
-      onAfterLogin();
+    if (showAuthDialog && session?.user && pendingActionRef.current) {
+      setShowAuthDialog(false);
+      pendingActionRef.current();
+      pendingActionRef.current = null;
     }
-  }, [pending, session?.user, onAfterLogin]);
+  }, [session, showAuthDialog]);
 
   const trigger = () => {
-    if (!session?.user.id) {
+    if (session?.user) {
+      onAfterLogin();
+    } else {
+      pendingActionRef.current = onAfterLogin;
       setShowAuthDialog(true);
-      setPending(true);
-      return;
     }
-    onAfterLogin();
   };
 
-  const handleLoginSuccess = () => {
-    setShowAuthDialog(false);
-    // O restante do fluxo será chamado pelo useEffect
-  };
+  if (sessionPending) {
+    return children(false, () => {});
+  }
 
   return (
     <>
-      {children(!!session?.user.id, trigger)}
+      {children(!!session?.user, trigger)}
       <AuthDialog
         open={showAuthDialog}
         onClose={() => setShowAuthDialog(false)}
-        onLoginSuccess={handleLoginSuccess}
       />
     </>
   );
