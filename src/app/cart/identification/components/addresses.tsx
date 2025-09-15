@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import { ShippingAddressDTO } from "@/data/identification/identification";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useViaCep } from "@/hooks/queries/use-viacep";
 
 import { formatAddress } from "../../helpers/address";
 
@@ -81,6 +82,22 @@ const Addresses = ({
       state: "",
     },
   });
+
+  const zipCodeValue = form.watch("zipCode");
+  const {
+    data: viaCepData,
+    isFetching: isFetchingCep,
+    error: cepError,
+  } = useViaCep(zipCodeValue);
+
+  useEffect(() => {
+    if (viaCepData) {
+      form.setValue("address", viaCepData.logradouro || "");
+      form.setValue("neighborhood", viaCepData.bairro || "");
+      form.setValue("city", viaCepData.localidade || "");
+      form.setValue("state", viaCepData.uf || "");
+    }
+  }, [viaCepData, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -268,6 +285,16 @@ const Addresses = ({
                         />
                       </FormControl>
                       <FormMessage />
+                      {isFetchingCep && (
+                        <span className="text-muted-foreground text-xs">
+                          Buscando endereço...
+                        </span>
+                      )}
+                      {cepError && (
+                        <span className="text-destructive text-xs">
+                          CEP não encontrado!
+                        </span>
+                      )}
                     </FormItem>
                   )}
                 />
