@@ -1,20 +1,18 @@
-type ViaCepResponse = {
-  cep: string;
-  logradouro: string;
-  complemento: string;
-  bairro: string;
-  localidade: string;
-  uf: string;
-  err: boolean;
-};
+import { NextRequest, NextResponse } from "next/server";
 
-export const fetchViaCep = async (cep: string): Promise<ViaCepResponse> => {
-  const sanitizedCep = cep.replace(/\D/g, "");
-  const response = await fetch(
-    `https://viacep.com.br/ws/${sanitizedCep}/json/`,
-  );
-  if (!response.ok) throw new Error("Erro ao buscar o CEP");
-  const data = await response.json();
-  if (data.erro) throw new Error("CEP não encontrado");
-  return data;
-};
+import { fetchViaCep } from "@/helpers/via-cep";
+
+export async function GET(request: NextRequest) {
+  const cep = request.nextUrl.searchParams.get("cep");
+  if (!cep) {
+    return NextResponse.json({ error: "CEP não informado" }, { status: 400 });
+  }
+  try {
+    const data = await fetchViaCep(cep);
+    return NextResponse.json(data);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
+  }
+}

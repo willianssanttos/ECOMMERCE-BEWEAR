@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchViaCep } from "@/app/api/viacep/route";
+import { fetchViaCep } from "@/helpers/via-cep";
 
-export const useViaCepQueryKey = (cep: string) => ["viaCep", cep];
+export const useViaCepQueryKey = (cep: string) => ["viacep", cep];
 
 export const useViaCep = (cep: string) => {
   return useQuery({
