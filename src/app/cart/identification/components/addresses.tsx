@@ -28,13 +28,31 @@ import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
 import { useViaCep } from "@/hooks/queries/use-viacep";
 
 import { formatAddress } from "../../helpers/address";
+import { cnpjIsValid } from "../../helpers/validate-cnpj";
+import { cpfIsValid } from "../../helpers/validate-cpf";
 
 const formSchema = z.object({
   email: z.email("Informe um e-mail válido"),
   fullName: z.string().min(1, "Campo obrigatório"),
-  cpf: z
-    .string()
-    .refine((value) => value.replace(/\D/g, "").length === 11, "CPF inválido"),
+  cpfOrCnpj: z.string().superRefine((value, ctx) => {
+    const sanitized = value.replace(/\D/g, "");
+    if (sanitized.length === 11 && !cpfIsValid(value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPF inválido",
+      });
+    } else if (sanitized.length === 14 && !cnpjIsValid(value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CNPJ inválido",
+      });
+    } else if (sanitized.length !== 11 && sanitized.length !== 14) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe um CPF ou CNPJ válido",
+      });
+    }
+  }),
   phone: z.string().min(1, "Campo obrigatório"),
   zipCode: z.string().min(1, "Campo obrigatório"),
   address: z.string().min(1, "Campo obrigatório"),
@@ -71,7 +89,7 @@ const Addresses = ({
     defaultValues: {
       email: "",
       fullName: "",
-      cpf: "",
+      cpfOrCnpj: "",
       phone: "",
       zipCode: "",
       address: "",
@@ -234,16 +252,41 @@ const Addresses = ({
 
                 <FormField
                   control={form.control}
-                  name="cpf"
+                  name="cpfOrCnpj"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>CPF</FormLabel>
+                      <FormLabel>CPF ou CNPJ</FormLabel>
                       <FormControl>
-                        <PatternFormat
-                          format="###.###.###-##"
-                          placeholder="000.000.000-00"
-                          customInput={Input}
-                          {...field}
+                        <Input
+                          placeholder="Digite o CPF ou CNPJ"
+                          maxLength={18}
+                          value={field.value}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/\D/g, "");
+                            let formatted = e.target.value;
+                            if (rawValue.length <= 11) {
+                              formatted = rawValue
+                                .replace(/^(\d{3})(\d)/, "$1.$2")
+                                .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+                                .replace(
+                                  /^(\d{3})\.(\d{3})\.(\d{3})(\d)/,
+                                  "$1.$2.$3-$4",
+                                );
+                            } else if (rawValue.length <= 14) {
+                              formatted = rawValue
+                                .replace(/^(\d{2})(\d)/, "$1.$2")
+                                .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                                .replace(
+                                  /^(\d{2})\.(\d{3})\.(\d{3})(\d)/,
+                                  "$1.$2.$3/$4",
+                                )
+                                .replace(
+                                  /^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/,
+                                  "$1.$2.$3/$4-$5",
+                                );
+                            }
+                            field.onChange(formatted);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
