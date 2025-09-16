@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -23,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ShippingAddressDTO } from "@/data/identification/identification";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
+import { useRemoveAddress } from "@/hooks/mutations/use-remove-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
 import { useViaCep } from "@/hooks/queries/use-viacep";
@@ -80,6 +82,7 @@ const Addresses = ({
   );
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
+  const removeAddressMutation = useRemoveAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
@@ -150,6 +153,15 @@ const Addresses = ({
     }
   };
 
+  const handleRemoveAddress = async (addressId: string) => {
+    try {
+      await removeAddressMutation.mutateAsync({ addressId });
+      toast.success("Endereço removido com sucesso!");
+    } catch {
+      toast.error("Não foi possível remover o endereço.");
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -178,9 +190,18 @@ const Addresses = ({
                 <CardContent>
                   <div className="flex items-center space-x-2 py-3">
                     <RadioGroupItem value={address.id} id={address.id} />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm">{formatAddress(address)}</p>
                     </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Remover endereço"
+                      onClick={() => handleRemoveAddress(address.id)}
+                      disabled={removeAddressMutation.isPending}
+                    >
+                      <Trash2 className="text-destructive h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
