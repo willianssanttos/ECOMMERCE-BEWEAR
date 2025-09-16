@@ -3,7 +3,7 @@ import z from "zod";
 export const createShippingAddressSchema = z.object({
   email: z.email(),
   fullName: z.string().min(1),
-  cpf: z.string().min(1),
+  cpfOrCnpj: z.string().min(1),
   phone: z.string().min(1),
   zipCode: z.string().min(1),
   address: z.string().min(1),
@@ -14,4 +14,6 @@ export const createShippingAddressSchema = z.object({
   state: z.string().min(1),
 });
 
-export type createShippingAddressSchema = z.infer<typeof createShippingAddressSchema>;
+export type createShippingAddressSchema = z.infer<
+  typeof createShippingAddressSchema
+>;

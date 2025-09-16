@@ -34,7 +34,7 @@ export const createShippingAddress = async (
       country: "BR",
       phone: data.phone,
       email: data.email,
-      cpfOrCnpj: data.cpf,
+      cpfOrCnpj: data.cpfOrCnpj,
     })
     .returning();
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { fetchViaCep } from "@/helpers/via-cep";
+import { fetchViaCep } from "@/app/cart/helpers/via-cep";
 
 export async function GET(request: NextRequest) {
   const cep = request.nextUrl.searchParams.get("cep");
