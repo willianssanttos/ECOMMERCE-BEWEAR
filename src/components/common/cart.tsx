@@ -37,6 +37,13 @@ export const Cart = () => {
             <ShoppingBagIcon className="h-5 w-5" />
             <SheetTitle>Sacola</SheetTitle>
           </div>
+          {cart?.items?.length === 0 && (
+              <div className="py-4 text-center">
+                <p className="text-muted-foreground">
+                  Você ainda não possui produtos no carrinho.
+                </p>
+              </div>
+            )}
         </SheetHeader>
 
         <div className="flex h-full flex-col px-5 pb-5">
