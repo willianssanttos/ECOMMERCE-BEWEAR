@@ -4,12 +4,13 @@ import { getOrders } from "@/data/my-orders/my-orders";
 
 import PaymentDetails from "../components/payment-details";
 
-interface PaymentPageProps {
-  params: { orderId: string };
-}
+export default async function PaymentPage({
+  params,
+}: {
+  params: Promise<{ orderId: string }>;
+}) {
+  const { orderId } = await params; // precisa de await agora
 
-const PaymentPage = async ({ params }: PaymentPageProps) => {
-  const { orderId } = await params;
   const orders = await getOrders();
   const order = orders.find((o) => o.id === orderId);
 
@@ -42,6 +43,4 @@ const PaymentPage = async ({ params }: PaymentPageProps) => {
       />
     </div>
   );
-};
-
-export default PaymentPage;
+}
