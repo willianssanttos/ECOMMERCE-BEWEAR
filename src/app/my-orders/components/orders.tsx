@@ -1,4 +1,7 @@
+"use client";
+import { ChevronRight, MapPin, User } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import {
   Accordion,
@@ -18,6 +21,12 @@ interface OrdersProps {
 }
 
 const Orders = ({ orders }: OrdersProps) => {
+  const router = useRouter();
+
+  const handleOpenPaymentDetails = (orderId: string) => {
+    router.push(`/my-orders/payment-details/${orderId}`);
+  };
+
   return (
     <div className="space-y-5">
       {orders.map((order) => (
@@ -34,6 +43,16 @@ const Orders = ({ orders }: OrdersProps) => {
                     {order.status === "canceled" && (
                       <Badge variant="destructive">Cancelado</Badge>
                     )}
+                    <p className="text- sm font-semibold">
+                      Número do pedido
+                      <p className="text-muted-foreground font-medium">
+                        {order.orderNumber}
+                      </p>
+                    </p>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="mb-2">
                     <p>
                       Pedido feito em{" "}
                       {new Date(order.createdAt).toLocaleDateString("pt-BR")} às{" "}
@@ -43,8 +62,6 @@ const Orders = ({ orders }: OrdersProps) => {
                       })}
                     </p>
                   </div>
-                </AccordionTrigger>
-                <AccordionContent>
                   {order.items.map((product) => (
                     <div
                       className="flex items-center justify-between"
@@ -97,6 +114,54 @@ const Orders = ({ orders }: OrdersProps) => {
                       <p className="text-sm font-semibold">
                         {formatCentsToBRL(order.totalPriceInCents)}
                       </p>
+                    </div>
+                  </div>
+                  <div className="py-5">
+                    <Separator />
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex flex-col gap-1">
+                      <p className="text-sm font-semibold">
+                        Informações da entrega
+                      </p>
+                          <div className="flex items-center gap-2">
+                            <User className="text-muted-foreground h-4 w-4" />
+                            <p className="text-sm font-semibold">
+                              {order.recipientName} &nbsp;{order.phone}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <MapPin className="text-muted-foreground h-4 w-4" />
+                            <p className="text-sm">
+                              {order.street}, {order.number}
+                              {order.complement && `, ${order.complement}`},{" "}
+                              {order.neighborhood}, {order.city} - {order.state},
+                              CEP: {order.zipCode}
+                            </p>
+                          </div>
+                          <div className="py-5">
+                            <Separator />
+                          </div>
+                          <Card>
+                            <CardContent>
+                              <div
+                                className="group flex cursor-pointer items-center justify-between"
+                                onClick={() =>
+                                  handleOpenPaymentDetails(order.id)
+                                }
+                              >
+                                <span className="text-sm font-semibold">
+                                  <span className="text-sm font-bold">
+                                  Total: {formatCentsToBRL(order.totalPriceInCents)}
+                                  </span>
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  Detalhes de pagamento
+                                  <ChevronRight className="text-muted-foreground group-hover:text-primary h-4 w-4 transition" />
+                                </span>
+                              </div>
+                            </CardContent>
+                          </Card>
                     </div>
                   </div>
                 </AccordionContent>

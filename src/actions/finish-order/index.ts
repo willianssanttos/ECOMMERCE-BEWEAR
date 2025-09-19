@@ -20,6 +20,12 @@ export const finishOrder = async () => {
     throw new Error("User not authenticated");
   }
 
+  function generateOrderNumber(): string {
+  const random = Math.floor(100000 + Math.random() * 900000);
+  return `BE-${random}`;
+}
+
+
   const cart = await db.query.cartTable.findFirst({
     where: eq(cartTable.userId, session.user.id),
     with: {
@@ -46,9 +52,11 @@ export const finishOrder = async () => {
     if (!cart.shippingAddress) {
       throw new Error("Shipping address not found");
     }
+    const orderNumber = generateOrderNumber();
     const [order] = await tx
       .insert(orderTable)
       .values({
+        orderNumber,
         email: cart.shippingAddress.email,
         zipCode: cart.shippingAddress.zipCode,
         country: cart.shippingAddress.country,
@@ -84,5 +92,5 @@ export const finishOrder = async () => {
   if (!orderId) {
     throw new Error("Order creation failed");
   }
-  return {orderId};
+  return { orderId };
 };

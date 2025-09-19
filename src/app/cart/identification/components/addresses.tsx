@@ -194,7 +194,7 @@ const Addresses = ({
                       <p className="text-sm">{formatAddress(address)}</p>
                     </div>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
                       aria-label="Remover endereço"
                       onClick={() => handleRemoveAddress(address.id)}

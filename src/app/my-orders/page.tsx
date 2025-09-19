@@ -15,9 +15,11 @@ const MyOrdersPage = async () => {
         <Orders
           orders={orders.map((order) => ({
             id: order.id,
+            orderNumber: order.orderNumber,
             totalPriceInCents: order.totalPriceInCents,
             status: order.status,
             createdAt: order.createdAt,
+            payment: order.payment,
             items: order.items.map((item) => ({
               id: item.id,
               imageUrl: cleanImageUrl(item.productVariant.imageUrl),
@@ -26,6 +28,18 @@ const MyOrdersPage = async () => {
               priceInCents: item.priceInCents,
               quantity: item.quantity,
             })),
+            recipientName: order.recipientName,
+            phone: order.phone,
+            street: order.street,
+            number: order.number,
+            complement: order.complement,
+            neighborhood: order.neighborhood,
+            city: order.city,
+            state: order.state,
+            zipCode: order.zipCode,
+            country: order.country,
+            email: order.email,
+            cpfOrCnpj: order.cpfOrCnpj,
           }))}
         />
       </div>

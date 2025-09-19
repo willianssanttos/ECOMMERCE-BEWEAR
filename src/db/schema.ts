@@ -226,6 +226,7 @@ export const orderTable = pgTable("order", {
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id, { onDelete: "cascade" }),
+  orderNumber: text("order_number").notNull().unique(),
   shippingAddressId: uuid("shipping_address_id").references(
     () => shippingAddressTable.id,
     { onDelete: "set null" },
@@ -248,6 +249,10 @@ export const orderTable = pgTable("order", {
 });
 
 export const orderRelations = relations(orderTable, ({ one, many }) => ({
+  payment: one(paymentTable, {
+    fields: [orderTable.id],
+    references: [paymentTable.orderId],
+  }),
   user: one(userTable, {
     fields: [orderTable.userId],
     references: [userTable.id],
@@ -280,5 +285,34 @@ export const orderItemRelations = relations(orderItemTable, ({ one }) => ({
   productVariant: one(productVariantTable, {
     fields: [orderItemTable.productVariantId],
     references: [productVariantTable.id],
+  }),
+}));
+
+export const paymentStatus = pgEnum("payment_status", [
+  "pending",
+  "paid",
+  "failed",
+  "refunded",
+]);
+
+export const paymentTable = pgTable("payment", {
+  id: uuid().primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orderTable.id, { onDelete: "cascade" }),
+  stripePaymentIntentId: text("stripe_payment_intent_id").notNull(),
+  stripeChargeId: text("stripe_charge_id"),
+  amountInCents: integer("amount_in_cents").notNull(),
+  method: text("method").notNull(), // ex: "pix", "credit_card", "boleto"
+  status: paymentStatus().notNull().default("pending"),
+  paidAt: timestamp("paid_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
+export const paymentRelations = relations(paymentTable, ({ one }) => ({
+  order: one(orderTable, {
+    fields: [paymentTable.orderId],
+    references: [orderTable.id],
   }),
 }));

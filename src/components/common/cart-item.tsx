@@ -1,4 +1,4 @@
-import { MinusIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { MinusIcon, PlusIcon, Trash2, TrashIcon } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
@@ -100,7 +100,7 @@ const CartItem = ({
       </div>
       <div className="flex flex-col items-end justify-center gap-2">
         <Button variant="outline" size="icon" onClick={handleDeleteClick}>
-          <TrashIcon />
+          <Trash2 className="text-destructive h-4 w-4"/>
         </Button>
         <p className="text-sm font-bold">
           {formatCentsToBRL(productVariantPriceInCents)}
