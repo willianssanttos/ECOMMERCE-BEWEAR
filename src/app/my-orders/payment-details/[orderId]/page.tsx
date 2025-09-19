@@ -8,8 +8,9 @@ interface PaymentPageProps {
   params: { orderId: string };
 }
 
-const PaymentPage = async ({ params }: PaymentPageProps) => {
-  const { orderId } = await params;
+const PaymentPage = async (props: PaymentPageProps) => {
+  const params = await props.params;
+  const { orderId } = params;
   const orders = await getOrders();
   const order = orders.find((o) => o.id === orderId);
 
