@@ -35,7 +35,7 @@ const Orders = ({ orders }: OrdersProps) => {
             <Accordion type="single" collapsible key={order.id}>
               <AccordionItem value="item-1">
                 <AccordionTrigger>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex cursor-pointer flex-col gap-1">
                     {order.status === "paid" && <Badge>Pago</Badge>}
                     {order.status === "pending" && (
                       <Badge variant="outline">Pagamento pendente</Badge>
@@ -124,44 +124,43 @@ const Orders = ({ orders }: OrdersProps) => {
                       <p className="text-sm font-semibold">
                         Informações da entrega
                       </p>
-                          <div className="flex items-center gap-2">
-                            <User className="text-muted-foreground h-4 w-4" />
-                            <p className="text-sm font-semibold">
-                              {order.recipientName} &nbsp;{order.phone}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="text-muted-foreground h-4 w-4" />
-                            <p className="text-sm">
-                              {order.street}, {order.number}
-                              {order.complement && `, ${order.complement}`},{" "}
-                              {order.neighborhood}, {order.city} - {order.state},
-                              CEP: {order.zipCode}
-                            </p>
-                          </div>
-                          <div className="py-5">
-                            <Separator />
-                          </div>
-                          <Card>
-                            <CardContent>
-                              <div
-                                className="group flex cursor-pointer items-center justify-between"
-                                onClick={() =>
-                                  handleOpenPaymentDetails(order.id)
-                                }
-                              >
-                                <span className="text-sm font-semibold">
-                                  <span className="text-sm font-bold">
-                                  Total: {formatCentsToBRL(order.totalPriceInCents)}
-                                  </span>
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  Detalhes de pagamento
-                                  <ChevronRight className="text-muted-foreground group-hover:text-primary h-4 w-4 transition" />
-                                </span>
-                              </div>
-                            </CardContent>
-                          </Card>
+                      <div className="flex items-center gap-2">
+                        <User className="text-muted-foreground h-4 w-4" />
+                        <p className="text-sm font-semibold">
+                          {order.recipientName} &nbsp;{order.phone}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <MapPin className="text-muted-foreground h-4 w-4" />
+                        <p className="text-sm">
+                          {order.street}, {order.number}
+                          {order.complement && `, ${order.complement}`},{" "}
+                          {order.neighborhood}, {order.city} - {order.state},
+                          CEP: {order.zipCode}
+                        </p>
+                      </div>
+                      <div className="py-5">
+                        <Separator />
+                      </div>
+                      <Card>
+                        <CardContent>
+                          <button
+                            className="group flex w-full cursor-pointer items-center justify-between"
+                            onClick={() => handleOpenPaymentDetails(order.id)}
+                          >
+                            <span className="text-sm font-semibold">
+                              <span className="text-sm font-bold">
+                                Total:{" "}
+                                {formatCentsToBRL(order.totalPriceInCents)}
+                              </span>
+                            </span>
+                            <span className="flex items-center">
+                              Detalhes de pagamento
+                              <ChevronRight className="text-muted-foreground group-hover:text-primary h-4 w-4 transition" />
+                            </span>
+                          </button>
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
                 </AccordionContent>
