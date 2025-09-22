@@ -4,12 +4,12 @@ import { getOrders } from "@/data/my-orders/my-orders";
 
 import PaymentDetails from "../components/payment-details";
 
-export default async function PaymentPage({
-  params,
-}: {
+type PaymentPageProps = {
   params: Promise<{ orderId: string }>;
-}) {
-  const { orderId } = await params; // precisa de await agora
+};
+
+export default async function PaymentPage({ params }: PaymentPageProps) {
+  const { orderId } = await params;
 
   const orders = await getOrders();
   const order = orders.find((o) => o.id === orderId);
