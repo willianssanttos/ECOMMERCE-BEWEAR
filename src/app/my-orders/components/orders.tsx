@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 import { OrderDTO } from "@/data/my-orders/my-orders";
 import { cleanImageUrl } from "@/helpers/clean-image-url";
 import { formatCentsToBRL } from "@/helpers/money";
+import { useCheckoutSession } from "@/hooks/mutations/use-checkout-session";
 
 interface OrdersProps {
   orders: OrderDTO[];
@@ -30,9 +31,18 @@ interface OrdersProps {
 
 const Orders = ({ orders }: OrdersProps) => {
   const router = useRouter();
+  const checkoutSessionMutation = useCheckoutSession();
   const handleOpenPaymentDetails = (orderId: string) => {
     router.push(`/my-orders/payment-details/${orderId}`);
   };
+
+  const handleUpdatePayment = async (orderId: string) => {
+    const checkoutSession = await checkoutSessionMutation.mutateAsync({ orderId });
+    if (checkoutSession.url) {
+      window.location.href = checkoutSession.url;
+    }
+  };
+
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -45,7 +55,7 @@ const Orders = ({ orders }: OrdersProps) => {
                 <AccordionTrigger>
                   <div className="flex cursor-pointer flex-col gap-1">
                     {order.status === "paid" && <Badge>Pago</Badge>}
-                    {order.status === "pending" && (
+                      {order.status === "pending" && (
                       <Badge variant="outline">Pagamento pendente</Badge>
                     )}
                     {order.status === "canceled" && (
@@ -114,6 +124,28 @@ const Orders = ({ orders }: OrdersProps) => {
                       </p>
                     </div>
                   </div>
+                    {order.status === "pending" && (
+                      <div>
+                        <div className="py-5">
+                          <Separator />
+                        </div>
+                        <div className="mb-4 flex flex-col gap-2">
+                          <span className="text-xs font-medium text-yellow-700">
+                            Estamos aguardando o pagamento do seu pedido, realize
+                            atualização do pagamento com outra forma de pagamento, ou
+                            em até 24 horas caso o pagamento não seja aprovado, seu
+                            pedido será cancelado automaticamente.
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded-md bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary/90 transition"
+                            onClick={() => handleUpdatePayment(order.id)}
+                          >
+                            Atualizar pagamento
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   <div className="py-5">
                     <Separator />
                   </div>
