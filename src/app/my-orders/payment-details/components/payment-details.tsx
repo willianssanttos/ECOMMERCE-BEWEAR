@@ -8,7 +8,7 @@ import { PaymentDTO } from "@/data/payment/payment";
 import { formatCentsToBRL } from "@/helpers/money";
 
 interface PaymentDetailsProps {
-  payment: PaymentDTO | null;
+  payment: PaymentDTO;
   subtotal: number;
   total: number;
   shippingFee: number;
@@ -31,7 +31,7 @@ interface PaymentDetailsProps {
 
 const getPaymentMethod = (method: string | undefined) => {
   if (method === "pix") return "Pix";
-  if (method === "credit_card")
+  if (method === "card")
     return "Cartão de crédito local com parcelamento";
   if (method === "boleto") return "Boleto";
   return "Não informado";

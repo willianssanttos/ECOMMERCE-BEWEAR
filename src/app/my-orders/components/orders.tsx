@@ -1,7 +1,15 @@
 "use client";
-import { ChevronRight, MapPin, User } from "lucide-react";
+
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronUp,
+  MapPin,
+  User,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import {
   Accordion,
@@ -22,10 +30,10 @@ interface OrdersProps {
 
 const Orders = ({ orders }: OrdersProps) => {
   const router = useRouter();
-
   const handleOpenPaymentDetails = (orderId: string) => {
     router.push(`/my-orders/payment-details/${orderId}`);
   };
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="space-y-5">
@@ -43,7 +51,7 @@ const Orders = ({ orders }: OrdersProps) => {
                     {order.status === "canceled" && (
                       <Badge variant="destructive">Cancelado</Badge>
                     )}
-                    <p className="text- sm font-semibold">
+                    <p className="text-sm font-semibold">
                       Número do pedido
                       <p className="text-muted-foreground font-medium">
                         {order.orderNumber}
@@ -52,16 +60,6 @@ const Orders = ({ orders }: OrdersProps) => {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="mb-2">
-                    <p>
-                      Pedido feito em{" "}
-                      {new Date(order.createdAt).toLocaleDateString("pt-BR")} às{" "}
-                      {new Date(order.createdAt).toLocaleTimeString("pt-BR", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                  </div>
                   {order.items.map((product) => (
                     <div
                       className="flex items-center justify-between"
@@ -163,6 +161,90 @@ const Orders = ({ orders }: OrdersProps) => {
                       </Card>
                     </div>
                   </div>
+                  <div className="py-5">
+                    <Separator />
+                  </div>
+                  <Card className="mb-2">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-base font-semibold">
+                            Número do pedido
+                          </span>
+                          <span className="text-muted-foreground text-xs">
+                            {order.orderNumber}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between">
+                        <span className="text-xs">Nota Fiscal</span>
+                        <button
+                          type="button"
+                          className="flex cursor-pointer items-center"
+                        >
+                          Ver <ChevronRight className="h-4 w-4" />
+                        </button>
+                      </div>
+                      <Separator className="my-3" />
+                      <div
+                        className={`transition-all duration-300 ${isOpen ? "max-h-96 opacity-100" : "max-h-0 overflow-hidden opacity-0"}`}
+                      >
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs">Pedido realizado em</span>
+                          <span className="text-xs">
+                            {new Date(order.createdAt).toLocaleDateString(
+                              "pt-BR",
+                            )}{" "}
+                            às
+                            {new Date(order.createdAt).toLocaleTimeString(
+                              "pt-BR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs">Data do pagamento</span>
+                          <span className="text-xs">
+                            {order.payment?.paidAt
+                              ? `${new Date(order.payment.paidAt).toLocaleDateString("pt-BR")} às 
+                              ${new Date(order.payment.paidAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                              : "--"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs">Postado em</span>
+                          <span className="text-xs">
+                            {order.shippedAt
+                              ? `${new Date(order.shippedAt).toLocaleDateString("pt-BR")} ${new Date(order.shippedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                              : "--"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between py-1">
+                          <span className="text-xs">Concluído em</span>
+                          <span className="text-xs">
+                            {order.completedAt
+                              ? `${new Date(order.completedAt).toLocaleDateString("pt-BR")} ${new Date(order.completedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
+                              : "--"}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="text-primary mt-2 flex w-full cursor-pointer items-center justify-center font-bold"
+                        onClick={() => setIsOpen((prev) => !prev)}
+                      >
+                        Fechar
+                        {isOpen ? (
+                          <ChevronUp className="ml-1 h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="ml-1 h-4 w-4" />
+                        )}
+                      </button>
+                    </CardContent>
+                  </Card>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
