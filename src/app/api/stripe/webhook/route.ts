@@ -24,21 +24,32 @@ export const POST = async (request: Request) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const orderId = session.metadata?.orderId;
-    if (!orderId) {
-      return NextResponse.error();
-    }
+    if (!orderId) return NextResponse.error();
 
     if (session.payment_status === "paid") {
-      await db
-        .update(orderTable)
-        .set({ status: "paid" })
-        .where(eq(orderTable.id, orderId));
+      const paymentIntentId = (session.payment_intent as string) ?? null;
+
+      let stripeChargeId: string | null = null;
+      if (paymentIntentId) {
+        const pi = (await stripe.paymentIntents.retrieve(paymentIntentId, {
+          expand: ["latest_charge"],
+        })) as Stripe.PaymentIntent;
+
+        const latestCharge = pi.latest_charge;
+        stripeChargeId =
+          typeof latestCharge === "string"
+            ? latestCharge
+            : latestCharge?.id ?? null;
+      }
+
+      await db.update(orderTable).set({ status: "paid" }).where(eq(orderTable.id, orderId));
 
       await db.insert(paymentTable).values({
         orderId,
-        stripePaymentIntentId: session.payment_intent as string,
+        stripePaymentIntentId: paymentIntentId ?? "unknown",
+        stripeChargeId,
         amountInCents: session.amount_total ?? 0,
-        method: session.payment_method_types[0] ?? "unknown",
+        method: session.payment_method_types?.[0] ?? "unknown",
         status: "paid",
         paidAt: session.created ? new Date(session.created * 1000) : null,
       });
@@ -80,9 +91,13 @@ export const POST = async (request: Request) => {
       })
       .where(eq(orderTable.id, orderId));
 
+    const stripePaymentIntentId =
+      typeof session.payment_intent === "string" && session.payment_intent
+        ? session.payment_intent
+        : "unknown";
     await db.insert(paymentTable).values({
       orderId,
-      stripePaymentIntentId: session.payment_intent as string,
+      stripePaymentIntentId,
       amountInCents: session.amount_total ?? 0,
       method: session.payment_method_types[0] ?? "unknown",
       status: "failed",
