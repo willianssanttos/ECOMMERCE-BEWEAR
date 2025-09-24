@@ -68,7 +68,7 @@ const PaymentDetails = ({
         <div>
           <p className="mb-1 text-sm font-semibold">Endereço para Envio:</p>
           <div className="text-muted-foreground text-xs leading-tight">
-            {billingAddress?.order.recipientName} &nbsp;{" "}
+            {billingAddress?.order.recipientName} {" "}
             {billingAddress?.order.phone}
             <br />
             {billingAddress?.order.street}, {billingAddress?.order.number}

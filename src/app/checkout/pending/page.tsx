@@ -43,7 +43,7 @@ const ChegkoutPendingPage = () => {
       <Dialog open={true} onOpenChange={() => {}}>
         <DialogContent className="text-center">
           <Image
-            src="/pending.jpg"
+            src="/payment_pending.png"
             alt="Pagamento Pendente"
             width={300}
             height={300}

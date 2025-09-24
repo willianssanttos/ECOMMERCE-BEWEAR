@@ -20,7 +20,7 @@ const ChegkoutCancelPage = () => {
       <Dialog open={true} onOpenChange={() => {}}>
         <DialogContent className="text-center">
           <Image
-            src="/cancel.jpg"
+            src="/payment_cancel.jpg"
             alt="Cancel"
             width={300}
             height={300}

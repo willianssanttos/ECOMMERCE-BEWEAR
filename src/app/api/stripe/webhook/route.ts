@@ -20,17 +20,36 @@ export const POST = async (request: Request) => {
     signature,
     process.env.STRIPE_WEBHOOK_SECRET,
   );
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const orderId = session.metadata?.orderId;
     if (!orderId) {
       return NextResponse.error();
     }
+
+    if (session.payment_status === "paid") {
+      await db
+        .update(orderTable)
+        .set({ status: "paid" })
+        .where(eq(orderTable.id, orderId));
+
+      await db.insert(paymentTable).values({
+        orderId,
+        stripePaymentIntentId: session.payment_intent as string,
+        amountInCents: session.amount_total ?? 0,
+        method: session.payment_method_types[0] ?? "unknown",
+        status: "paid",
+        paidAt: session.created ? new Date(session.created * 1000) : null,
+      });
+
+      return NextResponse.json({ received: true });
+    }
+
+    // Se não for pago, salva como pendente
     await db
       .update(orderTable)
-      .set({
-        status: "paid",
-      })
+      .set({ status: "pending" })
       .where(eq(orderTable.id, orderId));
 
     await db.insert(paymentTable).values({
@@ -38,9 +57,11 @@ export const POST = async (request: Request) => {
       stripePaymentIntentId: session.payment_intent as string,
       amountInCents: session.amount_total ?? 0,
       method: session.payment_method_types[0] ?? "unknown",
-      status: session.payment_status === "paid" ? "paid" : "pending",
-      paidAt: session.created ? new Date(session.created * 1000) : null,
+      status: "pending",
+      paidAt: null,
     });
+
+    return NextResponse.json({ received: true });
   }
 
   if (
