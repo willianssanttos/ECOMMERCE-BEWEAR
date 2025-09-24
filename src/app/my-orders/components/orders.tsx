@@ -131,8 +131,8 @@ const Orders = ({ orders }: OrdersProps) => {
                         </div>
                         <div className="mb-4 flex flex-col gap-2">
                           <span className="text-xs font-medium text-yellow-700">
-                            Estamos aguardando o pagamento do seu pedido, realize
-                            atualização do pagamento com outra forma de pagamento, ou
+                            Estamos aguardando o pagamento do seu pedido, ou realize
+                            a atualização do pagamento com outra forma de pagamento, ou
                             em até 24 horas caso o pagamento não seja aprovado, seu
                             pedido será cancelado automaticamente.
                           </span>

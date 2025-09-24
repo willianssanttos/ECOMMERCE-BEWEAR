@@ -13,35 +13,38 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ChegkoutCancelPage = () => {
+const ChegkoutPendingPage = () => {
+
   return (
     <>
       <Header />
       <Dialog open={true} onOpenChange={() => {}}>
         <DialogContent className="text-center">
           <Image
-            src="/payment_cancel.jpg"
-            alt="Cancel"
-            width={300}
-            height={300}
+            src="/payment_pending.png"
+            alt="Pagamento Pendente"
+            width={200}
+            height={200}
             className="mx-auto"
           />
-          <DialogTitle className="mt-4 text-2xl">Pedido Cancelado</DialogTitle>
+          <DialogTitle className="mt-4 text-2xl">
+            Pagamento Pendente
+          </DialogTitle>
           <DialogDescription className="font-medium">
-            O pagamento do seu pedido não foi realizado ou foi cancelado.<br />
-            Se desejar, tente novamente ou acesse “Meus Pedidos” para mais detalhes.
+            Opss! Infelizmente o seu pagamento ainda não foi aprovado ou foi cancelado. 
+            <br />
+            Estamos aguardando confirmação da administradora do
+            cartão. Assim que o mesmo for aprovado, você será notificado(a). Caso não seja aprovado em até 24 horas, o pedido será cancelado
+            automaticamente.
           </DialogDescription>
           <DialogFooter>
-            <Button className="rounded-full" size="lg" asChild>
-              <Link href="/my-orders">Meus Pedidos</Link>
-            </Button>
             <Button
-              className="rounded-full"
-              variant="outline"
+              className="rounded-full "
               size="lg"
               asChild
             >
-              <Link href="/">Voltar para a loja</Link>
+              
+              <Link href="/my-orders">Meus Pedidos</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -50,4 +53,4 @@ const ChegkoutCancelPage = () => {
   );
 };
 
-export default ChegkoutCancelPage;
+export default ChegkoutPendingPage;
