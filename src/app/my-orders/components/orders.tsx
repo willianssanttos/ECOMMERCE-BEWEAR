@@ -246,6 +246,7 @@ const Orders = ({ orders }: OrdersProps) => {
                               : "--"}
                           </span>
                         </div>
+{/*                         
                         <div className="flex justify-between py-1">
                           <span className="text-xs">Postado em</span>
                           <span className="text-xs">
@@ -261,7 +262,7 @@ const Orders = ({ orders }: OrdersProps) => {
                               ? `${new Date(order.completedAt).toLocaleDateString("pt-BR")} ${new Date(order.completedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`
                               : "--"}
                           </span>
-                        </div>
+                        </div> */}
                       </div>
                       <button
                         type="button"
