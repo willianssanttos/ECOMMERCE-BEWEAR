@@ -33,7 +33,7 @@ const AddToCartButton = ({
     <LoginProduct onAfterLogin={handleAddToCart}>
       {(isLogged, trigger) => (
         <Button
-          className="rounded-full cursor-pointer"
+          className="rounded-full"
           size="lg"
           variant="outline"
           disabled={isPending}
