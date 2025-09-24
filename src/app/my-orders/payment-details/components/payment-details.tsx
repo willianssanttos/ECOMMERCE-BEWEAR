@@ -8,27 +8,34 @@ import { PaymentDTO } from "@/data/payment/payment";
 import { formatCentsToBRL } from "@/helpers/money";
 
 interface PaymentDetailsProps {
-  payment: PaymentDTO | null;
+  payment: PaymentDTO;
   subtotal: number;
   total: number;
   shippingFee: number;
   discount: number;
- 
   billingAddress?: {
     order: {
-    recipientName: string;
-    phone: string;
-    street: string;
-    number: string;
-    complement?: string | null;
-    neighborhood: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
-    }
+      recipientName: string;
+      phone: string;
+      street: string;
+      number: string;
+      complement?: string | null;
+      neighborhood: string;
+      city: string;
+      state: string;
+      country: string;
+      zipCode: string;
+    };
   };
 }
+
+const getPaymentMethod = (method: string | undefined) => {
+  if (method === "pix") return "Pix";
+  if (method === "card")
+    return "Cartão de crédito local com parcelamento";
+  if (method === "boleto") return "Boleto";
+  return "Não informado";
+};
 
 const PaymentDetails = ({
   payment,
@@ -39,6 +46,7 @@ const PaymentDetails = ({
   billingAddress,
 }: PaymentDetailsProps) => {
   const router = useRouter();
+  const paymentMethod = getPaymentMethod(payment?.method);
 
   return (
     <Card>
@@ -49,7 +57,7 @@ const PaymentDetails = ({
           className="p-2"
           aria-label="Voltar para pedidos"
         >
-          <ArrowLeft className="text-muted-foreground h-4 w-4" />
+          <ArrowLeft className="text-muted-foreground h-4 w-4 cursor-pointer" />
         </button>
         <CardTitle className="flex-1 text-center font-bold">
           Detalhes de pagamento
@@ -60,13 +68,15 @@ const PaymentDetails = ({
         <div>
           <p className="mb-1 text-sm font-semibold">Endereço para Envio:</p>
           <div className="text-muted-foreground text-xs leading-tight">
-            {billingAddress?.order.recipientName} &nbsp; {billingAddress?.order.phone}
+            {billingAddress?.order.recipientName} {" "}
+            {billingAddress?.order.phone}
             <br />
             {billingAddress?.order.street}, {billingAddress?.order.number}
-            {billingAddress?.order.complement && `, ${billingAddress?.order.complement}`}
+            {billingAddress?.order.complement &&
+              `, ${billingAddress?.order.complement}`}
             <br />
-            {billingAddress?.order.neighborhood}, {billingAddress?.order.city} - {billingAddress?.order.state}, CEP: {" "}
-            {billingAddress?.order.zipCode}
+            {billingAddress?.order.neighborhood}, {billingAddress?.order.city} -{" "}
+            {billingAddress?.order.state}, CEP: {billingAddress?.order.zipCode}
           </div>
         </div>
         <hr className="my-4" />
@@ -74,12 +84,15 @@ const PaymentDetails = ({
           <div>
             <p className="mb-1 text-sm font-semibold">Endereço de faturação:</p>
             <div className="text-muted-foreground text-xs leading-tight">
-              {billingAddress?.order.recipientName} {billingAddress?.order.phone}
+              {billingAddress?.order.recipientName}{" "}
+              {billingAddress?.order.phone}
               <br />
               {billingAddress?.order.street}, {billingAddress?.order.number}
-              {billingAddress?.order.complement && `, ${billingAddress?.order.complement}`}
+              {billingAddress?.order.complement &&
+                `, ${billingAddress?.order.complement}`}
               <br />
-              {billingAddress?.order.neighborhood}, {billingAddress?.order.city} - {billingAddress?.order.state}, CEP: {" "}
+              {billingAddress?.order.neighborhood}, {billingAddress?.order.city}{" "}
+              - {billingAddress?.order.state}, CEP:{" "}
               {billingAddress?.order.zipCode}
             </div>
           </div>
@@ -90,19 +103,13 @@ const PaymentDetails = ({
           <CreditCard className="text-muted-foreground h-8 w-8 items-center" />
         </div>
         <p className="text-muted-foreground -mt-2 text-xs leading-tight">
-          {payment?.method === "pix"
-            ? "Pix"
-            : payment?.method === "credit_card"
-              ? "Cartão de crédito local com parcelamento"
-              : payment?.method === "boleto"
-                ? "Boleto"
-                : "Não informado"}
+          {paymentMethod}
         </p>
         <Separator />
         <div className="space-y-2">
           <div className="flex justify-between">
-            <p className="text-sm ">Valor Total:</p>
-            <p className="text-muted-foreground text-sm font-medium ">
+            <p className="text-sm">Valor Total:</p>
+            <p className="text-muted-foreground text-sm font-medium">
               {formatCentsToBRL(total)}
             </p>
           </div>

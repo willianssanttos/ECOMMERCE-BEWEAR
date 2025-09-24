@@ -65,7 +65,7 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
         <LoginProduct onAfterLogin={handleBuyNow}>
           {(isLogged, trigger) => (
             <Button
-              className="rounded-full"
+              className="rounded-full cursor-pointer"
               size="lg"
               onClick={trigger}
               disabled={isPending}

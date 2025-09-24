@@ -222,7 +222,7 @@ const Addresses = ({
           <div className="mt-4">
             <Button
               onClick={handleGoToPayment}
-              className="w-full rounded-full"
+              className="w-full rounded-full cursor-pointer"
               size="lg"
               disabled={updateCartShippingAddressMutation.isPending}
             >
@@ -453,7 +453,7 @@ const Addresses = ({
 
               <Button
                 type="submit"
-                className="w-full rounded-full"
+                className="w-full rounded-full cursor-pointer"
                 disabled={
                   createShippingAddressMutation.isPending ||
                   updateCartShippingAddressMutation.isPending
