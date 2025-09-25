@@ -11,10 +11,9 @@ import {
 interface AuthDialogProps {
   open: boolean;
   onClose: () => void;
-  onLoginSuccess?: () => void | Promise<void>;
 }
 
-export function AuthDialog({ open, onClose, onLoginSuccess }: AuthDialogProps) {
+export function AuthDialog({ open, onClose }: AuthDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="rounded-2xl">
@@ -25,9 +24,7 @@ export function AuthDialog({ open, onClose, onLoginSuccess }: AuthDialogProps) {
           Conecte-se à BEWEAR e aproveite uma experiência feita pra quem se
           veste com personalidade.
         </p>
-
-        {/* ✅ Passar onLoginSuccess para o GoogleSignInButton */}
-        <GoogleSignInButton onLoginSuccess={onLoginSuccess} />
+        <GoogleSignInButton />
       </DialogContent>
     </Dialog>
   );

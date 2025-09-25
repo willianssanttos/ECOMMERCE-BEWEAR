@@ -21,11 +21,11 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
   const queryClient = useQueryClient();
 
   const { mutateAsync, isPending } = useMutation({
-    mutationKey: ["addProductToCart"],
-    mutationFn: async (vars: { productVariantId: string; quantity: number }) =>
-      addProductToCart(vars),
+    mutationKey: ["addProductToCart", productVariantId, quantity],
+    mutationFn: () => addProductToCart({ productVariantId, quantity }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["cart"] });
+      router.push("/cart/identification");
     },
   });
 
@@ -38,8 +38,7 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
   };
 
   const handleBuyNow = async () => {
-    await mutateAsync({ productVariantId, quantity });
-    router.push("/cart/identification");
+    await mutateAsync();
   };
 
   return (
@@ -66,12 +65,12 @@ const ProductActions = ({ productVariantId }: ProductActionsProps) => {
         <LoginProduct onAfterLogin={handleBuyNow}>
           {(isLogged, trigger) => (
             <Button
-              className="rounded-full"
+              className="rounded-full cursor-pointer"
               size="lg"
               onClick={trigger}
               disabled={isPending}
             >
-              Comprar agora
+              {isPending ? "Processando..." : "Comprar agora"}
             </Button>
           )}
         </LoginProduct>
