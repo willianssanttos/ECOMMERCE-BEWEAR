@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/monitor-pending-payments?token=monitoriar",
-      "schedule": "*/1 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }

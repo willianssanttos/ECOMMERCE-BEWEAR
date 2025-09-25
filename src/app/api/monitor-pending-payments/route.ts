@@ -8,14 +8,16 @@ function isAuthorized(req: Request) {
   return secret ? token === secret : true;
 }
 
-export async function GET(req: Request) {
+async function handle(req: Request) {
   if (!isAuthorized(req)) return new Response("Unauthorized", { status: 401 });
   const result = await monitorPendingPayments();
   return Response.json(result);
 }
 
+export async function GET(req: Request) {
+  return handle(req);
+}
+
 export async function POST(req: Request) {
-  if (!isAuthorized(req)) return new Response("Unauthorized", { status: 401 });
-  const result = await monitorPendingPayments();
-  return Response.json(result);
+  return handle(req);
 }
