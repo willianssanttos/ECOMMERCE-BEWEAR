@@ -1,8 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -23,17 +24,37 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ShippingAddressDTO } from "@/data/identification/identification";
 import { useCreateShippingAddress } from "@/hooks/mutations/use-create-address";
+import { useRemoveAddress } from "@/hooks/mutations/use-remove-address";
 import { useUpdateCartShippingAddress } from "@/hooks/mutations/use-update-cart-shipping-address";
 import { useUserAddresses } from "@/hooks/queries/use-shipping-addresses";
+import { useViaCep } from "@/hooks/queries/use-viacep";
 
 import { formatAddress } from "../../helpers/address";
+import { cnpjIsValid } from "../../helpers/validate-cnpj";
+import { cpfIsValid } from "../../helpers/validate-cpf";
 
 const formSchema = z.object({
   email: z.email("Informe um e-mail válido"),
   fullName: z.string().min(1, "Campo obrigatório"),
-  cpf: z
-    .string()
-    .refine((value) => value.replace(/\D/g, "").length === 11, "CPF inválido"),
+  cpfOrCnpj: z.string().superRefine((value, ctx) => {
+    const sanitized = value.replace(/\D/g, "");
+    if (sanitized.length === 11 && !cpfIsValid(value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPF inválido",
+      });
+    } else if (sanitized.length === 14 && !cnpjIsValid(value)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CNPJ inválido",
+      });
+    } else if (sanitized.length !== 11 && sanitized.length !== 14) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Informe um CPF ou CNPJ válido",
+      });
+    }
+  }),
   phone: z.string().min(1, "Campo obrigatório"),
   zipCode: z.string().min(1, "Campo obrigatório"),
   address: z.string().min(1, "Campo obrigatório"),
@@ -61,6 +82,7 @@ const Addresses = ({
   );
   const createShippingAddressMutation = useCreateShippingAddress();
   const updateCartShippingAddressMutation = useUpdateCartShippingAddress();
+  const removeAddressMutation = useRemoveAddress();
   const { data: addresses, isLoading } = useUserAddresses({
     initialData: shippingAddresses,
   });
@@ -70,7 +92,7 @@ const Addresses = ({
     defaultValues: {
       email: "",
       fullName: "",
-      cpf: "",
+      cpfOrCnpj: "",
       phone: "",
       zipCode: "",
       address: "",
@@ -81,6 +103,22 @@ const Addresses = ({
       state: "",
     },
   });
+
+  const zipCodeValue = form.watch("zipCode");
+  const {
+    data: viaCepData,
+    isFetching: isFetchingCep,
+    error: cepError,
+  } = useViaCep(zipCodeValue);
+
+  useEffect(() => {
+    if (viaCepData) {
+      form.setValue("address", viaCepData.logradouro || "");
+      form.setValue("neighborhood", viaCepData.bairro || "");
+      form.setValue("city", viaCepData.localidade || "");
+      form.setValue("state", viaCepData.uf || "");
+    }
+  }, [viaCepData, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -115,6 +153,15 @@ const Addresses = ({
     }
   };
 
+  const handleRemoveAddress = async (addressId: string) => {
+    try {
+      await removeAddressMutation.mutateAsync({ addressId });
+      toast.success("Endereço removido com sucesso!");
+    } catch {
+      toast.error("Não foi possível remover o endereço.");
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -143,9 +190,18 @@ const Addresses = ({
                 <CardContent>
                   <div className="flex items-center space-x-2 py-3">
                     <RadioGroupItem value={address.id} id={address.id} />
-                    <div>
+                    <div className="flex-1">
                       <p className="text-sm">{formatAddress(address)}</p>
                     </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label="Remover endereço"
+                      onClick={() => handleRemoveAddress(address.id)}
+                      disabled={removeAddressMutation.isPending}
+                    >
+                      <Trash2 className="text-destructive h-4 w-4" />
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -166,7 +222,7 @@ const Addresses = ({
           <div className="mt-4">
             <Button
               onClick={handleGoToPayment}
-              className="w-full rounded-full"
+              className="w-full rounded-full cursor-pointer"
               size="lg"
               disabled={updateCartShippingAddressMutation.isPending}
             >
@@ -217,16 +273,41 @@ const Addresses = ({
 
                 <FormField
                   control={form.control}
-                  name="cpf"
+                  name="cpfOrCnpj"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>CPF</FormLabel>
+                      <FormLabel>CPF ou CNPJ</FormLabel>
                       <FormControl>
-                        <PatternFormat
-                          format="###.###.###-##"
-                          placeholder="000.000.000-00"
-                          customInput={Input}
-                          {...field}
+                        <Input
+                          placeholder="Digite o CPF ou CNPJ"
+                          maxLength={18}
+                          value={field.value}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/\D/g, "");
+                            let formatted = e.target.value;
+                            if (rawValue.length <= 11) {
+                              formatted = rawValue
+                                .replace(/^(\d{3})(\d)/, "$1.$2")
+                                .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+                                .replace(
+                                  /^(\d{3})\.(\d{3})\.(\d{3})(\d)/,
+                                  "$1.$2.$3-$4",
+                                );
+                            } else if (rawValue.length <= 14) {
+                              formatted = rawValue
+                                .replace(/^(\d{2})(\d)/, "$1.$2")
+                                .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+                                .replace(
+                                  /^(\d{2})\.(\d{3})\.(\d{3})(\d)/,
+                                  "$1.$2.$3/$4",
+                                )
+                                .replace(
+                                  /^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/,
+                                  "$1.$2.$3/$4-$5",
+                                );
+                            }
+                            field.onChange(formatted);
+                          }}
                         />
                       </FormControl>
                       <FormMessage />
@@ -268,6 +349,16 @@ const Addresses = ({
                         />
                       </FormControl>
                       <FormMessage />
+                      {isFetchingCep && (
+                        <span className="text-muted-foreground text-xs">
+                          Buscando endereço...
+                        </span>
+                      )}
+                      {cepError && (
+                        <span className="text-destructive text-xs">
+                          CEP não encontrado!
+                        </span>
+                      )}
                     </FormItem>
                   )}
                 />
@@ -362,7 +453,7 @@ const Addresses = ({
 
               <Button
                 type="submit"
-                className="w-full rounded-full"
+                className="w-full rounded-full cursor-pointer"
                 disabled={
                   createShippingAddressMutation.isPending ||
                   updateCartShippingAddressMutation.isPending

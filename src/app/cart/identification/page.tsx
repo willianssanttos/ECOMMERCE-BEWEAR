@@ -27,12 +27,15 @@ const IdentificationPage = async () => {
     <div>
       <Header />
       <div className="space-y-4 px-5">
-        <Addresses
+        <div className="cursor-pointer">
+          <Addresses
           shippingAddresses={shippingAddresses}
           defaultShippingAddressId={
             cart.shippingAddress ? cart.shippingAddress.id : null
           }
         />
+        </div>
+        
         <CartSummary
           subtotalInCents={cartTotalInCents}
           totalInCents={cartTotalInCents}
