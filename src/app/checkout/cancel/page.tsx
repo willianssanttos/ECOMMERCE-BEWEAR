@@ -13,36 +13,38 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ChegkoutSuccessPage = () => {
+const ChegkoutPendingPage = () => {
+
   return (
     <>
       <Header />
       <Dialog open={true} onOpenChange={() => {}}>
         <DialogContent className="text-center">
           <Image
-            src="/illustration.svg"
-            alt="Success"
+            src="/payment_pending.png"
+            alt="Pagamento Pendente"
             width={200}
             height={200}
             className="mx-auto"
           />
-          <DialogTitle className="mt-4 text-2xl">Pedido Realizado!</DialogTitle>
+          <DialogTitle className="mt-4 text-2xl">
+            Pagamento Pendente
+          </DialogTitle>
           <DialogDescription className="font-medium">
-            Seu pedido foi efetuado com sucesso. Você pode acompanhar o status
-            de envio na seção de “Meus Pedidos”.
+            Opss! Infelizmente o seu pagamento ainda não foi aprovado ou foi cancelado. 
+            <br />
+            Estamos aguardando confirmação da administradora do
+            cartão. Assim que o mesmo for aprovado, você será notificado(a). Caso não seja aprovado em até 24 horas, o pedido será cancelado
+            automaticamente.
           </DialogDescription>
-
           <DialogFooter>
-            <Button className="rounded-full" size="lg" asChild>
-              <Link href="/my-orders">Meus Pedidos</Link>
-            </Button>
             <Button
-              className="rounded-full"
-              variant="outline"
+              className="rounded-full cursor-pointer"
               size="lg"
               asChild
             >
-              <Link href="/">Voltar para a loja</Link>
+              
+              <Link href="/my-orders">Meus Pedidos</Link>
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -51,4 +53,4 @@ const ChegkoutSuccessPage = () => {
   );
 };
 
-export default ChegkoutSuccessPage;
+export default ChegkoutPendingPage;
