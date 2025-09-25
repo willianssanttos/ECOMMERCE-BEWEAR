@@ -33,13 +33,13 @@ const FinishOrderButton = () => {
 
   return (
     <Button
-      className="w-full rounded-full"
+      className="w-full cursor-pointer rounded-full"
       size="lg"
       onClick={handleFinishOrder}
       disabled={finishOrderMutation.isPending}
     >
       {finishOrderMutation.isPending && (
-        <Loader2 className="h-4 w-4 animate-spin" />
+        <Loader2 className="h-4 w-4 animate-spin"/>
       )}
       Finalizar compra
     </Button>
