@@ -22,7 +22,7 @@ const ProductVariantPage = async ({ params }: PageProps) => {
 
   return (
     <>
-      <Header />
+      <Header/>
       <div className="flex flex-col space-y-6">
         <Image
           src={cleanImageUrl(productVariant.imageUrl)}

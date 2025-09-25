@@ -9,15 +9,14 @@ import { useFinishOrder } from "@/hooks/mutations/use-finish-order";
 
 const FinishOrderButton = () => {
   const finishOrderMutation = useFinishOrder();
+
   const handleFinishOrder = async () => {
     if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
       throw new Error("Stripe publishable key is not set");
     }
 
     const { orderId } = await finishOrderMutation.mutateAsync();
-    const checkoutSession = await createCheckoutSession({
-      orderId,
-    });
+    const { id } = await createCheckoutSession({ orderId });
 
     const stripe = await loadStripe(
       process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
@@ -26,9 +25,7 @@ const FinishOrderButton = () => {
       throw new Error("Failed to load Stripe");
     }
 
-    await stripe.redirectToCheckout({
-      sessionId: checkoutSession.id,
-    });
+    await stripe.redirectToCheckout({ sessionId: id });
   };
 
   return (

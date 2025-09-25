@@ -1,4 +1,4 @@
-import { MinusIcon, PlusIcon, Trash2, TrashIcon } from "lucide-react";
+import { MinusIcon, PlusIcon, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { toast } from "sonner";
 
