@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { addProductToCart } from "@/actions/add-cart-product";
 import LoginProduct from "@/components/common/login-product";
@@ -16,6 +17,9 @@ const AddToCartButton = ({
   productVariantId,
   quantity,
 }: AddToCartButtonProps) => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
   const queryClient = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["addProductToCart", productVariantId, quantity],
@@ -31,15 +35,15 @@ const AddToCartButton = ({
 
   return (
     <LoginProduct onAfterLogin={handleAddToCart}>
-      {(isLogged, trigger) => (
+      {(_isLogged, trigger) => (
         <Button
-          className="rounded-full cursor-pointer"
+          className="cursor-pointer rounded-full"
           size="lg"
           variant="outline"
           disabled={isPending}
-          onClick={trigger}
+          onClick={mounted ? trigger : undefined}
         >
-          {isPending && <Loader2 className="animate-spin" />}
+          {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           Adicionar à sacola
         </Button>
       )}

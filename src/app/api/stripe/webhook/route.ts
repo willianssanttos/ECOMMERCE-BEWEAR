@@ -5,104 +5,138 @@ import Stripe from "stripe";
 import { db } from "@/db";
 import { orderTable, paymentTable } from "@/db/schema";
 
-export const POST = async (request: Request) => {
-  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
-    return NextResponse.error();
-  }
-  const signature = request.headers.get("stripe-signature");
-  if (!signature) {
-    return NextResponse.error();
-  }
-  const text = await request.text();
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-  const event = stripe.webhooks.constructEvent(
-    text,
-    signature,
-    process.env.STRIPE_WEBHOOK_SECRET,
-  );
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "");
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-    const orderId = session.metadata?.orderId;
-    if (!orderId) return NextResponse.error();
+function getMethod(session: Stripe.Checkout.Session) {
+  return session.payment_method_types?.[0] ?? "unknown";
+}
 
-    if (session.payment_status === "paid") {
-      const paymentIntentId = (session.payment_intent as string) ?? null;
+async function fetchLatestChargeId(paymentIntentId: string | null) {
+  if (!paymentIntentId) return null;
+  const pi = (await stripe.paymentIntents.retrieve(paymentIntentId, {
+    expand: ["latest_charge"],
+  })) as Stripe.PaymentIntent;
+  const latestCharge = pi.latest_charge;
+  return typeof latestCharge === "string" ? latestCharge : latestCharge?.id ?? null;
+}
 
-      let stripeChargeId: string | null = null;
-      if (paymentIntentId) {
-        const pi = (await stripe.paymentIntents.retrieve(paymentIntentId, {
-          expand: ["latest_charge"],
-        })) as Stripe.PaymentIntent;
+async function insertPayment(opts: {
+  orderId: string;
+  paymentIntentId: string | null;
+  stripeChargeId: string | null;
+  amountInCents: number;
+  method: string;
+  status: "paid" | "pending" | "failed";
+  paidAt: Date | null;
+}) {
+  await db.insert(paymentTable).values({
+    orderId: opts.orderId,
+    stripePaymentIntentId: opts.paymentIntentId ?? "unknown",
+    stripeChargeId: opts.stripeChargeId,
+    amountInCents: opts.amountInCents,
+    method: opts.method,
+    status: opts.status,
+    paidAt: opts.paidAt,
+  });
+}
 
-        const latestCharge = pi.latest_charge;
-        stripeChargeId =
-          typeof latestCharge === "string"
-            ? latestCharge
-            : latestCharge?.id ?? null;
-      }
+async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const orderId = session.metadata?.orderId;
+  if (!orderId) return NextResponse.error();
 
-      await db.update(orderTable).set({ status: "paid" }).where(eq(orderTable.id, orderId));
+  const paymentIntentId = (session.payment_intent as string) ?? null;
+  const amountInCents = session.amount_total ?? 0;
+  const method = getMethod(session);
 
-      await db.insert(paymentTable).values({
-        orderId,
-        stripePaymentIntentId: paymentIntentId ?? "unknown",
-        stripeChargeId,
-        amountInCents: session.amount_total ?? 0,
-        method: session.payment_method_types?.[0] ?? "unknown",
-        status: "paid",
-        paidAt: session.created ? new Date(session.created * 1000) : null,
-      });
+  if (session.payment_status === "paid") {
+    const stripeChargeId = await fetchLatestChargeId(paymentIntentId);
 
-      return NextResponse.json({ received: true });
-    }
+    await db.update(orderTable).set({ status: "paid" }).where(eq(orderTable.id, orderId));
 
-    // Se não for pago, salva como pendente
-    await db
-      .update(orderTable)
-      .set({ status: "pending" })
-      .where(eq(orderTable.id, orderId));
-
-    await db.insert(paymentTable).values({
+    await insertPayment({
       orderId,
-      stripePaymentIntentId: session.payment_intent as string,
-      amountInCents: session.amount_total ?? 0,
-      method: session.payment_method_types[0] ?? "unknown",
-      status: "pending",
-      paidAt: null,
+      paymentIntentId,
+      stripeChargeId,
+      amountInCents,
+      method,
+      status: "paid",
+      paidAt: session.created ? new Date(session.created * 1000) : null,
     });
 
     return NextResponse.json({ received: true });
   }
 
-  if (
-    event.type === "checkout.session.expired" ||
-    event.type === "checkout.session.async_payment_failed"
-  ) {
-    const session = event.data.object;
-    const orderId = session.metadata?.orderId;
-    if (!orderId) {
-      return NextResponse.error();
-    }
-    await db
-      .update(orderTable)
-      .set({
-        status: "canceled",
-      })
-      .where(eq(orderTable.id, orderId));
+  // Qualquer outro status no completed fica como pendente
+  await db.update(orderTable).set({ status: "pending" }).where(eq(orderTable.id, orderId));
 
-    const stripePaymentIntentId =
-      typeof session.payment_intent === "string" && session.payment_intent
-        ? session.payment_intent
-        : "unknown";
-    await db.insert(paymentTable).values({
-      orderId,
-      stripePaymentIntentId,
-      amountInCents: session.amount_total ?? 0,
-      method: session.payment_method_types[0] ?? "unknown",
-      status: "failed",
-      paidAt: null,
-    });
-  }
+  await insertPayment({
+    orderId,
+    paymentIntentId,
+    stripeChargeId: null,
+    amountInCents,
+    method,
+    status: "pending",
+    paidAt: null,
+  });
+
   return NextResponse.json({ received: true });
+}
+
+async function handleCheckoutFailedOrExpired(session: Stripe.Checkout.Session) {
+  const orderId = session.metadata?.orderId;
+  if (!orderId) return NextResponse.error();
+
+  await db.update(orderTable).set({ status: "canceled" }).where(eq(orderTable.id, orderId));
+
+  const paymentIntentId =
+    typeof session.payment_intent === "string" && session.payment_intent
+      ? session.payment_intent
+      : "unknown";
+
+  await insertPayment({
+    orderId,
+    paymentIntentId,
+    stripeChargeId: null,
+    amountInCents: session.amount_total ?? 0,
+    method: getMethod(session),
+    status: "failed",
+    paidAt: null,
+  });
+
+  return NextResponse.json({ received: true });
+}
+
+export const POST = async (request: Request) => {
+  if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.error();
+  }
+
+  const signature = request.headers.get("stripe-signature");
+  if (!signature) return NextResponse.error();
+
+  const rawBody = await request.text();
+
+  let event: Stripe.Event;
+  try {
+    event = stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
+  } catch {
+    return NextResponse.error();
+  }
+
+  switch (event.type) {
+    case "checkout.session.completed":
+      return handleCheckoutCompleted(event.data.object);
+
+    case "checkout.session.expired":
+    case "checkout.session.async_payment_failed":
+      return handleCheckoutFailedOrExpired(event.data.object);
+
+    default:
+      // Eventos não tratados explicitamente
+      return NextResponse.json({ ignored: true });
+  }
 };
