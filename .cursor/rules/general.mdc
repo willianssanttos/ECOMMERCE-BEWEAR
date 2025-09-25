@@ -25,6 +25,8 @@ entregar soluções de alta qualidade e fáceis de manter.
 
 - Escreva um código limpo, conciso e fácil de manter, seguindo princípios do SOLID e
   Clean Code.
+  - Sempre seguir o padrão de escrita do código existente no projeto.
+- Sempre realizar analise das ts e tsx, ja criadas para melhor entendimento do projeto, e de como deverar escrever o codido da tarefa solicitada.
 - Use nomes de variáveis descritivos (exemplos: isLoading, hasError).
 - Use kebab-case para nomes de pastas e arquivos.
 - Sempre use TypeScript para escrever código.
