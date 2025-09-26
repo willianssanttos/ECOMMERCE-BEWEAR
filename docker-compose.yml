@@ -10,3 +10,13 @@ services:
       - ./stripe-config:/root/.config/stripe
     command: >
       listen --forward-to host.docker.internal:3000/api/stripe/webhook
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok_tunnel_bewear
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
+    command: http http://host.docker.internal:3000
+    ports:
+      - "4040:4040"
