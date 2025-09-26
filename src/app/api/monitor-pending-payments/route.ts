@@ -1,3 +1,5 @@
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+
 import { monitorPendingPayments } from "@/actions/monitor-pending-payments";
 
 function isAuthorized(req: Request) {
@@ -8,16 +10,16 @@ function isAuthorized(req: Request) {
   return secret ? token === secret : true;
 }
 
-async function handle(req: Request) {
-  if (!isAuthorized(req)) return new Response("Unauthorized", { status: 401 });
+async function run() {
   const result = await monitorPendingPayments();
   return Response.json(result);
 }
 
 export async function GET(req: Request) {
-  return handle(req);
+  if (!isAuthorized(req)) return new Response("Unauthorized", { status: 401 });
+  return run();
 }
 
-export async function POST(req: Request) {
-  return handle(req);
-}
+export const POST = verifySignatureAppRouter(async () => {
+  return run();
+});

@@ -20,10 +20,10 @@ jobs:
           CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
         run: |
           set -e
-          URL="${APP_URL}/api/monitor-pending-payments?token=${CRON_TOKEN}"
+          URL="${APP_URL}/api/monitor-pending-payments"
           for i in 1 2 3; do
             echo "Attempt $i: $URL"
-            code=$(curl -s -o /dev/null -w "%{http_code}" "$URL" || echo "000")
+            code=$(curl -s -o /dev/null -w "%{http_code}" -H "x-cron-token: ${CRON_TOKEN}" "$URL" || echo "000")
             if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
               echo "Success ($code)"
               exit 0
