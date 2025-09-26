@@ -7,7 +7,7 @@ import { orderTable, paymentTable } from "@/db/schema";
 
 export async function monitorPendingPayments() {
   const now = new Date();
-  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const twentyFourHoursAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
   // Busca pedidos pendentes há mais de 24h
   const pendingOrders = await db
