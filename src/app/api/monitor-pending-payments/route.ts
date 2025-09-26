@@ -23,3 +23,7 @@ export async function GET(req: Request) {
 export const POST = verifySignatureAppRouter(async () => {
   return run();
 });
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const preferredRegion = ["gru1", "iad1", "sfo1"];
